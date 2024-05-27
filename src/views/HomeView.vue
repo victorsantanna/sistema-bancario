@@ -1,15 +1,16 @@
 <template>
      <div class="container">
     <div class="content-img-home">
-      <img class="img-home" src="../assets/img/logo2.png" alt="imagem home">
-      <img class="img-home2" src="../assets/img/logo3.png" alt="imagem home">
+      <img class="img-home" src="../assets/img/logo4.png" alt="imagem home">
     </div>
     <div class="content-info-home">
       <div class="content-info">
         <h2>Sua tranquilidade financeira,<br> nossa prioridade.</h2>
         <p>Com nossa tecnologia avançada, suas finanças estão sempre seguras.<br>
            Concentre-se no crescimento do seu negócio com total confiança.</p>
-           <button class="btn-info">Crie sua conta agora</button>
+           <router-link to="/cadastro">
+             <button class="btn-info">Crie sua conta agora</button>
+           </router-link>
         </div>
      
     </div>
@@ -18,11 +19,11 @@
 </template>
 
 <script>
-
+import { RouterLink } from 'vue-router';
 export default {
   name: 'HomeView',
   components: {
- 
+    RouterLink,
   }
 }
 </script>
@@ -45,18 +46,12 @@ export default {
 }
 
 .img-home{
-  position: absolute;
-  z-index: 2; 
-  width: 280px;
-  height: 200px;
-  margin-left: 80px;
-}
-.img-home2{
-   z-index: 1;
   width: 400px;
-  height: 280px;
-  margin-left: 30px;
+  height: 320px;
+  margin-left: 50px;
+  margin-top: 22px;
 }
+
 .content-info-home{
   display: flex;
   flex-direction: column;
