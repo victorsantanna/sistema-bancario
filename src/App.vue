@@ -1,7 +1,8 @@
 <template>
- <Navbar  v-if="!isLoginPage" />
+ <Navbar  v-if="!isAuthPage" />
   
   <router-view/>
+  
 </template>
 
 <script>
@@ -11,11 +12,15 @@ export default{
   components:{
     Navbar,
   },
-  computed: {
-    // Verifica se a rota atual é a rota de login
-    isLoginPage() {
-      return this.$route.path === '/login';
+  data(){
+    return{
+     
     }
+  },
+   computed: {
+      isAuthPage() {
+      return this.$route.path === '/login' || this.$route.path === '/cadastro';
+    },
   }
 }
 
