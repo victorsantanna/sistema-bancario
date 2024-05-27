@@ -2,11 +2,14 @@
  <Navbar  v-if="!isAuthPage" />
   
   <router-view/>
+  {{ this.users }}
   
 </template>
 
 <script>
 import Navbar from './components/Navbar.vue';
+import usuarioService from './services/usuarios'
+
 
 export default{
   components:{
@@ -14,14 +17,29 @@ export default{
   },
   data(){
     return{
-     
+      users: [],
     }
   },
    computed: {
       isAuthPage() {
       return this.$route.path === '/login' || this.$route.path === '/cadastro';
     },
-  }
+  },
+  created(){
+    this.getUsuarios();
+  },
+  methods:{
+     async getUsuarios(){
+       try {
+        const response = await usuarioService.obterUsuarios();
+        console.log(response);
+        this.users = response;
+        return response
+       } catch (error) {
+        console.error(error);
+       }
+    }
+  },
 }
 
 </script>
