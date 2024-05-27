@@ -20,10 +20,12 @@
                 </div>
                 <div class="form-group-btn">
                     <button type="submit">Entrar</button>
-                    <button class="btn-naocliente" type="button" onclick="location.href='#'">Ainda não sou cliente</button>
+                    <router-link to="/cadastro">
+                        <button class="btn-naocliente" type="button" onclick="location.href='#'">Ainda não sou cliente</button>
+                    </router-link>
                 </div>
                 <div class="form-group-esqueci">
-                    <a href="#">Esqueci minha senha</a>
+                    <p>Esqueci minha senha</p>
                 </div>
             </form>
         </div>
@@ -34,6 +36,13 @@
 </template>
 
 <script>
+import { RouterLink } from 'vue-router';
+export default {
+  name: 'HomeView',
+  components: {
+    RouterLink,
+  }
+}
 
 </script>
 
@@ -90,6 +99,10 @@ form{
     margin-bottom: 13px;
     width: 224px;
     height: 28px;
+    outline: none; 
+}
+.form-group input:focus {
+    border-bottom: 2.2px solid #06004F; 
 }
 
 input[type="checkbox"] {
@@ -113,8 +126,6 @@ input[type="checkbox"] {
     margin-top: 10px;
     display: flex;
     flex-direction: column;
-    
-   
 
 }
 button[type="submit"]{
@@ -124,6 +135,8 @@ button[type="submit"]{
     border-radius: 4px;
     width: 240px;
     height: 44px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .btn-naocliente{
@@ -134,6 +147,8 @@ button[type="submit"]{
     color: #06004F;
     border-radius: 4px;
     background-color: #fff;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .footer{
@@ -141,6 +156,14 @@ button[type="submit"]{
     width: 1000px;
     height: 40px;
     background-color: #06004F;
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.form-group-esqueci{
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 500;
+    color:#358EF7;
 }
 
 </style>
