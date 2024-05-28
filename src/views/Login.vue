@@ -1,33 +1,36 @@
 <template>
     <div class="container">
-        <div class="content-img-login">
-            <img class="img-login" src="../assets/img/img-login/login.png" alt="">
-        </div>
-        <div class="content-info-form">
-            <h2>Acesse sua conta</h2>
-            <form>
-                <div class="form-group">
-                    <label for="cpf-cnpj">CPF/CNPJ</label>
-                    <input type="text" id="cpf-cnpj" name="cpf-cnpj" placeholder="Insira seu CPF ou CNPJ" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-senha" for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" placeholder="Insira sua senha" required>
-                </div>
-                <div class="form-group-check">
-                    <input type="checkbox" id="lembrar" name="lembrar">
-                    <label  for="lembrar">Lembrar de mim</label>
-                </div>
-                <div class="form-group-btn">
-                    <button type="submit">Entrar</button>
-                    <router-link to="/cadastro">
-                        <button class="btn-naocliente" type="button" onclick="location.href='#'">Ainda não sou cliente</button>
-                    </router-link>
-                </div>
-                <div class="form-group-esqueci">
-                    <p>Esqueci minha senha</p>
-                </div>
-            </form>
+        <div class="conteudo-login">
+            <div class="conteudo-imagem-login">
+                <img class="imagem-login" src="../assets/img/img-login/login.png" alt="">
+            </div>
+            <div class="conteudo-info-formulario">
+                <h2>Acesse sua conta</h2>
+                <form>
+                    <div class="grupo-formulario">
+                        <label for="cpf-cnpj">CPF/CNPJ</label>
+                        <input type="text" id="cpf-cnpj" name="cpf-cnpj" placeholder="Insira seu CPF ou CNPJ" required>
+                    </div>
+                    <div class="grupo-formulario">
+                        <label class="form-senha" for="senha">Senha</label>
+                        <input type="password" id="senha" name="senha" placeholder="Insira sua senha" required>
+                    </div>
+                    <div class="grupo-formulario-check">
+                        <input type="checkbox" id="lembrar" name="lembrar">
+                        <label  for="lembrar">Lembrar de mim</label>
+                    </div>
+                    <div class="grupo-formulario-botao">
+                        <button type="submit">Entrar</button>
+                        <router-link to="/cadastro">
+                            <button class="botao-naocliente" type="button" onclick="location.href='#'">Ainda não sou cliente</button>
+                        </router-link>
+                    </div>
+                    <div class="grupo-formulario-esqueci">
+                        <p>Esqueci minha senha</p>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
     <footer>
@@ -49,59 +52,69 @@ export default {
 <style scoped>
 
 .container{
-    font-family: 'Montserrat', sans-serif;
-    margin-top: 10px;
+   font-family: 'Montserrat', sans-serif;
+   margin-top: 10px;
+   display: flex;
+   flex-direction: row;
+   justify-content:space-around;
+   align-items: center;
+   width:  1240px;
+   height: 480px;
+}
+.conteudo-login{
     display: flex;
     flex-direction: row;
-    justify-content:space-around;
+    justify-content: space-around;
     align-items: center;
-    width: 990px;
-    height: 385px;
+    width: 1250px;
+}
+
+.imagem-login{
+   margin-top:80px;
+   width: 436px;
+   margin-right: 250px;
+   
 }
 
 h2{
-    color: #06004F;
+   color: #06004F;
+   font-size: 28px;
 }
 
-.img-login{
-    margin-top: 80px;
-   margin-right: 60px;
-    width: 505px;
-    height: 472px;
-}
 
-.content-info-form{
+.conteudo-info-formulario{
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 20px;
-    margin-right: 150px;
-    padding: 10px;
+    margin-right: 160px;
+    
 }
 
 form{
     display: flex;
     flex-direction: column;
+    margin-right: 160px;
+
 }
 
-.form-group label{
+.grupo-formulario label{
    display: block;
    margin-top: 4px;
    margin-bottom: 2px; 
    color: #6B6B6B;
    font-weight: bold;
-   font-size: 13px;
+   font-size: 16px;
 }
 
-.form-group input{
+.grupo-formulario input{
     border: none;
     border-bottom: 1.3px solid #6B6B6B;
     margin-bottom: 13px;
-    width: 224px;
+    width: 324px;
     height: 28px;
     outline: none; 
 }
-.form-group input:focus {
+.grupo-formulario input:focus {
     border-bottom: 2.2px solid #06004F; 
 }
 
@@ -109,20 +122,20 @@ input[type="checkbox"] {
   accent-color: #06004F;
 }
 
-.form-group-check{
+.grupo-formulario-check{
     display: flex;
     flex-direction: row;
 }
 
-.form-group-check label{
+.grupo-formulario-check label{
     color: #06004F;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     margin-top: 3px;
     margin-bottom: 4px;
 }
 
-.form-group-btn{
+.grupo-formulario-botao{
     margin-top: 10px;
     display: flex;
     flex-direction: column;
@@ -133,14 +146,14 @@ button[type="submit"]{
     color: #E6E6ED;
     border: none;
     border-radius: 4px;
-    width: 240px;
+    width: 340px;
     height: 44px;
     font-weight: bold;
     cursor: pointer;
 }
 
-.btn-naocliente{
-    width: 240px;
+.botao-naocliente{
+    width: 340px;
     height: 44px;
     margin-top:10px;
     border: 1.2px solid #06004F; 
@@ -152,15 +165,15 @@ button[type="submit"]{
 }
 
 .footer{
-    margin-top: 41px;
-    width: 1000px;
-    height: 40px;
+   margin-top: 30px;
+    width: 1250px;
+    height: 77px;
     background-color: #06004F;
     box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
-.form-group-esqueci{
-    font-size: 12px;
+.grupo-formulario-esqueci{
+    font-size: 15px;
     margin-top: 5px;
     font-weight: 500;
     color:#358EF7;
