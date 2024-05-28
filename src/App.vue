@@ -2,7 +2,7 @@
  <Navbar  v-if="!isAuthPage" />
   
   <router-view/>
-  {{ this.users }}
+  <!--{{ this.users }}-->
   
 </template>
 
