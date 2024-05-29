@@ -25,6 +25,12 @@ const routes = [
     
     component: () => import('../views/CadastroView.vue')
   },
+  {
+    path: '/detalhes',
+    name: 'detalhes',
+    
+    component: () => import('../views/DetalhesView.vue')
+  },
 ]
 
 const router = createRouter({
