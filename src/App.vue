@@ -22,7 +22,7 @@ export default{
   },
    computed: {
       isAuthPage() {
-      return this.$route.path === '/login' || this.$route.path === '/cadastro';
+      return this.$route.path === '/login' || this.$route.path === '/cadastro' || this.$route.path === '/detalhes';
     },
   },
   created(){
