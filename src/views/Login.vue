@@ -20,7 +20,9 @@
                         <label  for="lembrar">Lembrar de mim</label>
                     </div>
                     <div class="grupo-formulario-botao">
-                        <button type="submit">Entrar</button>
+                        <router-link to="/detalhes">
+                            <button type="submit">Entrar</button>
+                        </router-link>
                         <router-link to="/cadastro">
                             <button class="botao-naocliente" type="button" onclick="location.href='#'">Ainda não sou cliente</button>
                         </router-link>
