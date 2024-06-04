@@ -4,13 +4,13 @@
         <div class="conteudo-logo">
             <img class="logo" src="../assets/img/img-home/logo.png" alt="logo">
         </div>
-
+        <RouterLink to="/login" class="no-underline" >
         <div class="conteudo-entrar">
-            <RouterLink to="/login">
+            
                 <button class="botao-entrar">Acesse sua conta</button>
-            </RouterLink>
                 <img class="imagem-frame" src="../assets/img/img-home/Frame.png" alt="imagem frame">
-        </div>
+            </div>
+        </RouterLink>
     </div>
 
 </template>
@@ -74,5 +74,9 @@ export default{
     cursor: pointer;
     margin-top: 2px;
     
+}
+
+.no-underline{
+    text-decoration: none;
 }
 </style>
