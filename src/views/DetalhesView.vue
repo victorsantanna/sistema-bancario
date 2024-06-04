@@ -176,6 +176,17 @@ export default{
           console.error(error);
          }
       },
+    async getContaPorId(){
+         try {
+          const response = await contasService.obterContasPorId();
+          console.log(response);
+          
+          return response
+         } catch (error) {
+          console.error(error);
+         }
+      },
+
   },
 }
 

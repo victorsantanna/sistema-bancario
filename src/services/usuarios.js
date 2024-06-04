@@ -10,4 +10,9 @@ export default {
         const { data } = await http.post(`usuarios`, parametro)
         return data
     },
+
+    obterUsuarioPorCpfCnpj: async (parametro) => {
+        const { data } = await http.get(`usuarios?cpfCnpj=${parametro}`)
+        return data
+    },
 }
