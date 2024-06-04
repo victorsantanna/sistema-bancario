@@ -7,23 +7,18 @@
 
             <section class="content-section">
                     <div class="content-info-section">
-                        <div class="menu-info">
-                            <img class="aside-icon" src="../assets/img/img-detalhes/frame6.png" alt="">
-                            <p>Realizar transação</p>
-                        </div>
-                       
+                                               
                         <div class="content-transacoes-info">
-                            <div class="content-info-usuario">
-                        <div class="content-saldo-usuario">
-                           <p>Saldo em conta</p>
-                           <img src="../assets/img/img-detalhes/frame2.png" alt="olho">
+                        <div class="content-info-usuario">
+                            <div class="content-saldo-usuario">
+                            <p>Saldo em conta</p>
+                            <img src="../assets/img/img-detalhes/frame2.png" alt="olho">
+                            </div>
+                            <strong>
+                                <p>R$:1400,45</p>
+                            </strong>
                         </div>
-                        <strong>
-                            <p>R$:1400,45</p>
-                        </strong>
-                    </div>
                             <h3>Transação</h3>
-                            <p>Dados da conta</p>
                             <p>Preencha os campos a seguir com os dados da conta que deseja transferir.</p>
                             <div>
                                 <form>
@@ -46,7 +41,7 @@
                                         <input class="input-valor" type="text" placeholder="Valor">
                                     </div>
                                     <div class="btn-transacao">
-                                        <button class="btn-concluir">concluir transferência</button>
+                                        <button @click="openModal" class="btn-concluir">concluir transferência</button>
                                         <button class="btn-voltar">voltar</button>
 
                                     </div>
@@ -55,10 +50,13 @@
                         </div>
                     </div>
                     <div class="section-secundaria">
+                       <router-link to="/">
                         <div class="botao-sair">
-                            <button> Sair</button>
+                            <button class="btn-sair"> Sair</button>
                             <img src="../assets/img/img-detalhes/frame12.png" alt="">
                         </div>
+
+                    </router-link>
                         <div>
                             <img class="section-banner" src="../assets/img/img-detalhes/banner2.png" alt="">
                         </div>
@@ -67,8 +65,9 @@
         </div>
 
     </div>
-    
 
+    <ModalTransacaoVue :open="isOpen" @close="isOpen =!isOpen"/>
+    
     <h1>Contas</h1>
     <ul>
       <li v-for="conta in contas" :key="conta.id">
@@ -88,9 +87,11 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import contasService from '@/services/contas.js';
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
+import ModalTransacaoVue from '@/components/ModalTransacao.vue';
 
 
 export default{
@@ -102,6 +103,19 @@ export default{
     components:{
         NavbarTransacao,
         MenuLateral,
+        ModalTransacaoVue,
+    },
+    setup(){
+        const isOpen = ref(false)
+
+        const openModal = () => {
+            isOpen.value =  true
+
+            return isOpen.value
+        }
+        return{
+            isOpen, openModal
+        }
     },
     created(){
     this.getContas();
@@ -165,16 +179,16 @@ export default{
     flex-direction: column;
     margin:0;
     padding: 0;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
     
 }
 .content-info-usuario p, h3{
-    margin: 0;
-    padding: 0;
+    margin: 2px;
+    padding: 2px;
 }
 
 .content-info-usuario h3 {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .content-transacoes-usuario{
@@ -199,11 +213,11 @@ export default{
     
 }
 .content-transacoes-info p, h4{
-    margin: 0;
-    padding: 0;
+    margin: 2px;
+    padding: 2px;
 }
 .content-transacoes-info h4{
-    margin-top: 30px;
+    margin-top: 10px;
 }
 
 .section-banner{
@@ -276,6 +290,35 @@ export default{
     background-color: #DCDCDC;
     font-weight: bold;
     cursor: pointer;
+}
+
+.botao-sair{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-right: 50px;
+    margin-bottom: 30px;
+    width: 98px;
+    height: 28px;
+    border: 1px solid #06004F;
+    border-radius: 4px;
+       
+    align-items: center;
+}
+
+.btn-sair{
+    border: none;
+    background-color: #fff;
+    color: #06004F;
+    cursor: pointer;
+    margin-right: 12px;
+    font-weight: bold;
+}
+.section-secundaria{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
 }
 
 
