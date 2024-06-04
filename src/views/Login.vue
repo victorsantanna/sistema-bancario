@@ -2,7 +2,7 @@
     <div class="container">
         <div class="conteudo-login">
             <div class="conteudo-imagem-login">
-                <img class="imagem-login" src="../assets/img/img-login/login.png" alt="">
+                <img class="imagem-login" src="../assets/img/img-login/login.png" alt="Imagem login"  loading="eager">
             </div>
             <div class="conteudo-info-formulario">
                 <h2>Acesse sua conta</h2>
@@ -152,6 +152,9 @@ button[type="submit"]{
     height: 44px;
     font-weight: bold;
     cursor: pointer;
+}
+button[type="submit"]:hover{
+    background-color: #080065;
 }
 
 .botao-naocliente{
