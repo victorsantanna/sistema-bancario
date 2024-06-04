@@ -1,8 +1,8 @@
 <template>
+  
  <Navbar  v-if="!isAuthPage" />
   
   <router-view/>
-  {{ this.users }}
   
 </template>
 
@@ -22,12 +22,12 @@ export default{
   },
    computed: {
       isAuthPage() {
-      return this.$route.path === '/login' || this.$route.path === '/cadastro';
+      return this.$route.path === '/login' || this.$route.path === '/cadastro' || this.$route.path === '/detalhes' || this.$route.path === '/teste' || this.$route.path ==='/transacao'  || this.$route.path ==='/historico' ;
     },
   },
-  created(){
-    this.getUsuarios();
-  },
+  //created(){
+  //  this.getUsuarios();
+ // },
   methods:{
      async getUsuarios(){
        try {

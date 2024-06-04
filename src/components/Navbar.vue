@@ -1,20 +1,23 @@
 <template>
-    <div class="container">
-        <div class="content-logo">
-            <img class="logo" src="../assets/img/logo.png" alt="logo">
-        </div>
-        <div class="content-entrar">
-            <RouterLink to="/login">
-                <button class="btn-entrar">Acesse sua conta</button>
-            </RouterLink>
-                <img class="img-frame" src="../assets/img/Frame.png" alt="">
-        </div>
 
+    <div class="container">
+        <div class="conteudo-logo">
+            <img class="logo" src="../assets/img/img-home/logo.png" alt="logo">
+        </div>
+        <RouterLink to="/login" class="no-underline" >
+        <div class="conteudo-entrar">
+            
+                <button class="botao-entrar">Acesse sua conta</button>
+                <img class="imagem-frame" src="../assets/img/img-home/Frame.png" alt="imagem frame">
+            </div>
+        </RouterLink>
     </div>
+
 </template>
 
 <script>
 import { RouterLink } from 'vue-router';
+
 export default{
     components:{
         RouterLink,
@@ -25,22 +28,26 @@ export default{
 <style scoped>
 .container{
     font-family: 'Montserrat', sans-serif;
-    width: 1000px;
-    height: 70px;
+    width: 1248px;
+    height: 80px;
     background-color: #06004F;
     display: flex;
     flex-direction: row;
     justify-content:space-between;
     align-items: center;
 }
-.content-logo{
+
+.conteudo-logo{
     margin-left: 50px;
 }
+
 .logo{
-    width: 89px;
+    width: 110px;
     height: 22px;
+    
 }
-.content-entrar{
+
+.conteudo-entrar{
     margin-top: 5px;
     margin-right: 50px;
     width: 198px;
@@ -52,18 +59,24 @@ export default{
     justify-content: center;
     align-items: center;
 }
-.btn-entrar{
+
+.botao-entrar{
     border: none;
     background-color: #06004F;
     color: #E6E6ED;
     cursor: pointer;
     
 }
-.img-frame{
+
+.imagem-frame{
     width: 22px;
     height: 22px;
     cursor: pointer;
     margin-top: 2px;
     
+}
+
+.no-underline{
+    text-decoration: none;
 }
 </style>

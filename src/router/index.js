@@ -25,6 +25,30 @@ const routes = [
     
     component: () => import('../views/CadastroView.vue')
   },
+  {
+    path: '/detalhes',
+    name: 'detalhes',
+    
+    component: () => import('../views/DetalhesView.vue')
+  },
+  {
+    path: '/teste',
+    name: 'teste',
+    
+    component: () => import('../views/teste.vue')
+  },
+  {
+    path: '/transacao',
+    name: 'transacao',
+    
+    component: () => import('../views/TransacaoView.vue')
+  },
+  {
+    path: '/historico',
+    name: 'historico',
+    
+    component: () => import('../views/HistoricoView.vue')
+  },
 ]
 
 const router = createRouter({
