@@ -11,35 +11,35 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nome">Nome Completo</label>
-                            <input type="text" id="nome" name="nome" placeholder="Informe o seu nome completo" required>
+                            <input  v-model="usuario.nomeCompleto" type="text" id="nome" name="nome" placeholder="Informe o seu nome completo" required>
                         </div>
                         <div class="form-group">
                             <label for="cpfcnpj">CPF/CNPJ</label>
-                            <input type="text" id="cpfcnpj" name="cpfcnpj" placeholder="Informe seu CPF ou CNPJ" required>
+                            <input v-model="usuario.cpfCnpj" type="text" id="cpfcnpj" name="cpfcnpj" placeholder="Informe seu CPF ou CNPJ" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="email">E-mail</label>
-                            <input type="text" id="email" name="email" placeholder="Informe o endereço de e-mail" required>
+                            <input v-model="usuario.email" type="text" id="email" name="email" placeholder="Informe o endereço de e-mail" required>
                         </div>
                         <div class="form-group">
-                            <label for="celular">Celular</label>
-                            <input type="text" id="celular" name="celular" placeholder="Informe o número de celular" required>
+                            <label for="celular">Tipo</label>
+                            <input v-model="usuario.tipo" type="text" id="senha3" name="senha3" placeholder="tipo da conta" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="senha">Senha</label>
-                            <input type="password" id="senha" name="senha" placeholder="Escolha sua senha de acesso" required>
+                            <input v-model="usuario.senha" type="password" id="senha" name="senha" placeholder="Escolha sua senha de acesso" required>
                         </div>
                         <div class="form-group">
                             <label for="senha2">Repita a senha</label>
-                            <input type="password" id="senha2" name="senha2" placeholder="Repita sua senha de acesso" required>
+                            <input type="password" id="senha2" name="senha2" placeholder="Repita sua senha de acesso" >
                         </div>
                     </div>
                     <div class="form-group-btn">
-                        <button type="submit">Finalizar cadastro</button>
+                        <button @click="cadastrarUsuario" type="submit">Finalizar cadastro</button>
                         <router-link to="/login">
                             <button class="btn-naocliente" type="button">Já sou cliente</button>
                         </router-link>
@@ -58,7 +58,33 @@
 </template>
 
 <script>
-
+import usuarioService from '@/services/usuarios'
+export default{
+    data(){
+        return{
+            usuario:{
+                nomeCompleto:'',
+                cpfCnpj:'',
+                email:'',
+                senha:'',
+                tipo:'',
+            }
+        }
+    },
+    methods:{
+     async cadastrarUsuario(){
+       try {
+        await usuarioService.cadastrarUsuario(this.usuario);        
+       } catch (error) {
+        console.error(error.message);
+        if (error.response && error.response.data) {
+         this.error = error.response.data.messageUser || error.response.data.message || 'Erro ao cadastrar usuário';           
+         console.error('Erro detalhado:', error.response.data.messageUser);
+       }
+    }
+  }
+}
+}
 </script>
 
 <style scoped>
