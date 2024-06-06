@@ -1,188 +1,226 @@
 <template>
     <div class="container">
-        <NavbarTransacao />
+        <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
+        :cpf-cnpj="cpfCnpj" />
         <div class="body-content">
 
             <MenuLateral />
 
             <section class="content-section">
-                    <div class="content-info-section">
-                                               
-                        <div class="content-transacoes-info">
+                <div class="content-info-section">
+
+                    <div class="content-transacoes-info">
                         <div class="content-info-usuario">
                             <div class="content-saldo-usuario">
-                            <p>Saldo em conta</p>
-                            <img src="../assets/img/img-detalhes/frame2.png" alt="olho">
+                                <p>Saldo em conta</p>
+                                <img src="../assets/img/img-detalhes/frame2.png" alt="olho">
                             </div>
                             <strong>
                                 <p>R$:1400,45</p>
                             </strong>
                         </div>
-                            <h3>Transação</h3>
-                            <p>Preencha os campos a seguir com os dados da conta que deseja transferir.</p>
-                            <div>
-                                <form>
-                                    <div class="form-row">
-                                        <input type="text" placeholder="Instituição" />
-                                    </div>
-                                    <div class="form-row">
-                                        <input type="text" placeholder="Agência" />
-                                        <input type="text" placeholder="Conta" />
-                                    </div>
-                                            <div class="form-row">
-                                                <input type="text" placeholder="Nome completo" />
-                                            </div>
-                                            <div class="form-row">
-                                                <input type="text" placeholder="CPF/CNPJ" />
-                                                <input type="text" placeholder="Tipo de conta" />
-                                            </div>
-                                    <p class="text-valor-transf">Valor da transferência</p>
-                                    <div class="form-row">
-                                        <input class="input-valor" type="text" placeholder="Valor">
-                                    </div>
-                                    <div class="btn-transacao">
-                                        <button @click="openModal" class="btn-concluir">concluir transferência</button>
-                                        <button class="btn-voltar">voltar</button>
+                        <h3>Transação</h3>
+                        <p>Preencha os campos a seguir com os dados da conta que deseja transferir.</p>
+                        <div>
 
-                                    </div>
-                                </form>
+                            <div class="form-row">
+                                <input type="text" placeholder="Instituição" />
                             </div>
+                            <div class="form-row">
+                                <input v-model="transacao.idContaOrigem" type="text" placeholder="Conta Origem" />
+                                <input v-model="transacao.idContaDestino" type="text" placeholder="Conta destino" />
+                            </div>
+                            <div class="form-row">
+                                <input type="text" placeholder="Nome completo" />
+                            </div>
+                            <div class="form-row">
+                                <input type="text" placeholder="CPF/CNPJ" />
+                                <input type="text" placeholder="Tipo de conta" />
+                            </div>
+                            <p class="text-valor-transf">Valor da transferência</p>
+                            <div class="form-row">
+                                <input v-model="transacao.valor" class="input-valor" type="text" placeholder="Valor">
+                            </div>
+                            <div class="btn-transacao">
+                                <button @click="enviaTransacao" class="btn-concluir">concluir transferência</button>
+                                <button class="btn-voltar">voltar</button>
+
+                            </div>
+
                         </div>
                     </div>
-                    <div class="section-secundaria">
-                       <router-link to="/">
+                </div>
+                <div class="section-secundaria">
+                    <router-link to="/">
                         <div class="botao-sair">
                             <button class="btn-sair"> Sair</button>
                             <img src="../assets/img/img-detalhes/frame12.png" alt="">
                         </div>
 
                     </router-link>
-                        <div>
-                            <img class="section-banner" src="../assets/img/img-detalhes/banner2.png" alt="">
-                        </div>
+                    <div>
+                        <img class="section-banner" :src="imagemAtual" alt="">
                     </div>
-                </section>
+                </div>
+            </section>
         </div>
 
     </div>
 
-    <ModalTransacaoVue :open="isOpen" @close="isOpen =!isOpen"/>
-    
-    <h1>Contas</h1>
-    <ul>
-      <li v-for="conta in contas" :key="conta.id">
-        <p>Conta: {{ conta.conta }}</p>
-        <p>Agência: {{ conta.agencia }}</p>
-        <p>Saldo: {{ conta.saldo }}</p>
-        <p>Usuário: {{ conta.usuario.nomeCompleto }}</p>
-        <p>CPF/CNPJ: {{ conta.usuario.cpfCnpj }}</p>
-        <p>E-mail: {{ conta.usuario.email }}</p>
-        <p>Tipo de conta: {{ conta.usuario.tipo }}</p><br>
+    <ModalTransacaoVue :open="isOpen" @close="isOpen = !isOpen" />
 
-        
-      </li>
-    </ul>
-  
-    
+    <!-- <h1>Contas</h1>
+    <ul>
+        <li v-for="conta in contas" :key="conta.id">
+            <p>Conta: {{ conta.conta }}</p>
+            <p>Agência: {{ conta.agencia }}</p>
+            <p>Saldo: {{ conta.saldo }}</p>
+            <p>Usuário: {{ conta.usuario.nomeCompleto }}</p>
+            <p>CPF/CNPJ: {{ conta.usuario.cpfCnpj }}</p>
+            <p>E-mail: {{ conta.usuario.email }}</p>
+            <p>Tipo de conta: {{ conta.usuario.tipo }}</p><br>
+
+
+        </li>
+    </ul> -->
+
+
 </template>
 
 <script>
 import { ref } from 'vue';
-import contasService from '@/services/contas.js';
+import contasService from '@/services/contasService.js';
+import transacaoService from '@/services/transacoesService.js';
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
 import ModalTransacaoVue from '@/components/ModalTransacao.vue';
 
 
-export default{
-    data(){
-        return{
-            contas:[],
+export default {
+    data() {
+        return {
+            contas: [],
+            indiceAtual: 0,
+            imagens: [
+                require('@/assets/img/img-detalhes/banner1.png'),
+                require('@/assets/img/img-detalhes/banner2.png'),
+                require('@/assets/img/img-detalhes/banner3.png')
+            ],
+            transacao: {
+                idContaOrigem: '',
+                idContaDestino: '',
+                valor: ''
+
+            }
         }
     },
-    components:{
+    components: {
         NavbarTransacao,
         MenuLateral,
         ModalTransacaoVue,
     },
-    setup(){
+    computed: {
+        imagemAtual() {
+            return this.imagens[this.indiceAtual];
+        },
+    },
+    mounted() {
+        setInterval(() => {
+            this.indiceAtual = (this.indiceAtual + 1) % this.imagens.length;
+        }, 5000);
+    },
+    setup() {
         const isOpen = ref(false)
 
         const openModal = () => {
-            isOpen.value =  true
+            isOpen.value = true
 
             return isOpen.value
         }
-        return{
+        return {
             isOpen, openModal
         }
     },
-    created(){
-    this.getContas();
-    
+    created() {
+        this.getContas();
+
     },
-    methods:{
-     async getContas(){
-       try {
-        const response = await contasService.obterContas();
-        console.log(response);
-        this.contas = response;
-        
-       } catch (error) {
-        console.error(error);
-       }
-     },
+    methods: {
+        async getContas() {
+            try {
+                const response = await contasService.obterContas();
+                console.log(response);
+                this.contas = response;
+
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async enviaTransacao() {
+            try {
+                await transacaoService.realizarTransacao(this.transacao);
+                this.openModal();
+            } catch (error) {
+                console.error(error);
+            }
+        },
+
     }
 }
 </script>
 
 <style scoped>
-.container{
-  width: 1240px;
-  height: 585px;
- 
+.container {
+    width: 1240px;
+    height: 585px;
+
 }
-.body-content{
+
+.body-content {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-.menu-info{
+.menu-info {
     display: flex;
     flex-direction: row;
-    
+
 }
 
 
 
-.content-section{
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;   
-  margin: 45px;
+.content-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin: 45px;
 }
 
-.content-info-section{
+.content-info-section {
     margin-right: 250px;
 }
-.content-saldo-usuario{
+
+.content-saldo-usuario {
     display: flex;
     flex-direction: row;
 }
-.content-saldo-usuario img{
+
+.content-saldo-usuario img {
     margin-left: 10px;
 }
 
-.content-info-usuario{
+.content-info-usuario {
     display: flex;
     flex-direction: column;
-    margin:0;
+    margin: 0;
     padding: 0;
     margin-bottom: 10px;
-    
+
 }
-.content-info-usuario p, h3{
+
+.content-info-usuario p,
+h3 {
     margin: 2px;
     padding: 2px;
 }
@@ -191,7 +229,7 @@ export default{
     margin-top: 20px;
 }
 
-.content-transacoes-usuario{
+.content-transacoes-usuario {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -201,26 +239,29 @@ export default{
 
 }
 
-.content-transacoes-usuario img{
+.content-transacoes-usuario img {
     margin-left: 90px;
     padding: 15px;
 }
 
-.content-transacoes-info{
+.content-transacoes-info {
     display: flex;
     flex-direction: column;
-    
-    
+
+
 }
-.content-transacoes-info p, h4{
+
+.content-transacoes-info p,
+h4 {
     margin: 2px;
     padding: 2px;
 }
-.content-transacoes-info h4{
+
+.content-transacoes-info h4 {
     margin-top: 10px;
 }
 
-.section-banner{
+.section-banner {
     width: 190px;
     margin-right: 60px;
 }
@@ -228,51 +269,53 @@ export default{
 /* formulário */
 
 .form-row {
-  display: flex;
-  margin-bottom: 10px; 
+    display: flex;
+    margin-bottom: 10px;
 }
 
 .form-row input {
-  flex: 2;
-  margin-right: 10px; 
-  padding-left:10px;
-  height: 30px;
+    flex: 2;
+    margin-right: 10px;
+    padding-left: 10px;
+    height: 30px;
 }
 
 .form-row input:last-child {
-  margin-right: 0; /* Remove o espaçamento do último input da linha */
+    margin-right: 0;
+    /* Remove o espaçamento do último input da linha */
 }
 
-.form-row input::placeholder{
+.form-row input::placeholder {
     font-size: 14px;
- 
+
 }
 
-.input-valor{
+.input-valor {
     margin-top: 6px;
 }
 
-.text-valor-transf{
+.text-valor-transf {
     font-size: 15px;
     color: #06004F;
     font-weight: bold;
-    
+
 }
 
-.btn-transacao{
+.btn-transacao {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     margin-top: 15px;
 }
-.btn-transacao button{
+
+.btn-transacao button {
     flex: 1;
 }
 
-.btn-concluir{
-    
+.btn-concluir {
+
     height: 34px;
-    border: 1.2px solid #06004F; 
+    border: 1.2px solid #06004F;
     color: #fff;
     border-radius: 4px;
     background-color: #06004F;
@@ -280,11 +323,11 @@ export default{
     cursor: pointer;
 }
 
-.btn-voltar{
+.btn-voltar {
     margin-left: 5px;
-    
+
     height: 34px;
-    border: 1.2px solid #06004F; 
+    border: 1.2px solid #06004F;
     color: #06004F;
     border-radius: 4px;
     background-color: #DCDCDC;
@@ -292,7 +335,7 @@ export default{
     cursor: pointer;
 }
 
-.botao-sair{
+.botao-sair {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -302,11 +345,11 @@ export default{
     height: 28px;
     border: 1px solid #06004F;
     border-radius: 4px;
-       
+
     align-items: center;
 }
 
-.btn-sair{
+.btn-sair {
     border: none;
     background-color: #fff;
     color: #06004F;
@@ -314,13 +357,11 @@ export default{
     margin-right: 12px;
     font-weight: bold;
 }
-.section-secundaria{
+
+.section-secundaria {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-end;
 }
-
-
-
 </style>
