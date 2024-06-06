@@ -22,7 +22,7 @@
                 </div>
                 <div class="grupo-formulario-botao">
                     <!--<router-link to="/detalhes">>-->
-                    <button @click="loginPorCpfCnpj()">Entrar</button>
+                    <button class="btn-login" @click="loginPorCpfCnpj()">Entrar</button>
                     <!--</router-link>-->
                     <router-link to="/cadastro">
                         <button class="botao-naocliente" type="button" onclick="location.href='#'">Ainda não sou
@@ -30,7 +30,7 @@
                     </router-link>
                 </div>
                 <div class="grupo-formulario-esqueci">
-                    <p>Esqueci minha senha</p>
+                    <p class="link-esqueceu-senha">Esqueci minha senha</p>
                 </div>
 
             </div>
@@ -44,7 +44,7 @@
 
 <script>
 import { RouterLink } from 'vue-router';
-import usuarioService from '@/services/usuarios';
+import usuarioService from '@/services/usuariosService';
 export default {
     name: 'HomeView',
     components: {
@@ -61,7 +61,7 @@ export default {
                 console.log('Logado!')
                 const response = await usuarioService.obterUsuarioPorCpfCnpj(this.cpfCnpj);
                 if (response.content[0].id != undefined) {
-                    localStorage.setItem('idUsuario', response.content[0].id);
+                    sessionStorage.setItem('idUsuario', response.content[0].id);
                     this.$router.push({ name: 'detalhes' })
 
                 }
@@ -98,7 +98,7 @@ export default {
 .imagem-login {
     margin-top: 80px;
     width: 436px;
-    margin-right: 250px;
+    margin-right: 220px;
 
 }
 
@@ -112,7 +112,7 @@ h2 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-right: 160px;
+    margin-right: 260px;
 
 }
 
@@ -169,7 +169,7 @@ input[type="checkbox"] {
 
 }
 
-button[type="submit"] {
+.btn-login{
     background-color: #06004F;
     color: #E6E6ED;
     border: none;
@@ -209,5 +209,6 @@ button[type="submit"]:hover {
     margin-top: 5px;
     font-weight: 500;
     color: #358EF7;
+    cursor: pointer;
 }
 </style>
