@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="content-cadastro">
-            <img class="img-logo-cadastro" src="../assets/img/cadastro/logocadastro.png" alt="">
+           
             <div class="titulo-cadastro">
                 <h2 class="titulo-cadastro-form">Realize seu cadastro</h2>
                 <p class="subtitulo-paragrafo">DADOS PESSOAIS</p>
@@ -26,10 +26,13 @@
                             <input v-model="usuario.email" type="text" id="email" name="email"
                                 placeholder="Informe o endereço de e-mail" required>
                         </div>
-                        <div class="form-group">
-                            <label for="celular">Tipo</label>
-                            <input v-model="usuario.tipo" type="text" id="senha3" name="senha3"
-                                placeholder="tipo da conta" required>
+                        <div class="form-group">    
+                            <label for="tipo">Tipo de conta</label>
+                            <select v-model="usuario.tipo" id="tipo" name="tipo" >
+                                <option value="" disabled>Selecione o tipo de conta</option>
+                                <option value="COMUM">COMUM</option>
+                                <option value="LOJISTA">LOJISTA</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-row">
@@ -43,7 +46,7 @@
                             <input type="password" id="senha2" name="senha2" placeholder="Repita sua senha de acesso">
                         </div>
                     </div>
-                    <div class="">
+                    <div class="form-group">
                         <label for="conta">Conta</label>
                         <input v-model="contaUsuario.agencia" type="text" id="conta" name="conta"
                             placeholder="insira sua conta" max-length="4">
@@ -69,8 +72,8 @@
 </template>
 
 <script>
-import usuarioService from '@/services/usuarios';
-import contaService from '@/services/contas';
+import usuarioService from '@/services/usuariosService';
+import contaService from '@/services/contasService';
 export default {
     data() {
         return {
@@ -103,7 +106,7 @@ export default {
                 }
             }
         }
-     }
+    }
 }
 </script>
 
@@ -126,7 +129,7 @@ export default {
     display: flex;
     flex-direction: column;
     margin-left: 30px;
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .titulo-cadastro-form {
@@ -151,8 +154,8 @@ export default {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 30px;
-    width: 500px;
+    padding: 28px;
+    width: 496px;
 }
 
 .content-img-cadastro {
