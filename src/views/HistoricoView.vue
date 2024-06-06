@@ -20,6 +20,8 @@
             <div class="conteudo-historico">
                 <h3>mês</h3>
                 <p>data</p>
+                <input v-model="buscarPorId" type="text">
+                <button @click="transacaoPorid">buscar</button>
                 <div class="conteudo-historico-info">
                     <div>
                         <img src="../assets/img/historico/deposito.png" alt="">
@@ -31,19 +33,19 @@
                     </div>
                     <div>
                         <h3>CPF/CNPJ</h3>
-                        <p>***.123.774-**</p>                       
+                        <p>***.123.774-**</p>
                     </div>
                     <div>
                         <h3>Agência</h3>
-                        <p>1</p>                       
+                        <p>1</p>
                     </div>
                     <div>
                         <h3>Número da conta</h3>
-                        <p>88996633-1</p>                       
+                        <p>88996633-1</p>
                     </div>
                     <div>
                         <h3>Horário</h3>
-                        <p>17h23</p>                       
+                        <p>17h23</p>
                     </div>
                     <div>
                         <img src="../assets/img/historico/comprovante.png" alt="">
@@ -52,26 +54,43 @@
             </div>
         </div>
     </div>
-  
+
 </template>
 
 <script>
+import transacoesService from '@/services/transacoesService.js';
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
 export default {
-    components:{
+    components: {
         NavbarTransacao, MenuLateral,
+    },
+    data(){
+        return{
+            buscarPorId: '',
+        }
+    },
+    methods:{
+        async transacaoPorid(){
+            try {
+                const response = await transacoesService.obterTransacaoPorId(this.buscarPorId);
+                console.log(response);
+                return response
+            } catch (error) {
+                
+            }
+        }
     }
 }
 </script>
 
 <style scoped>
-.container{
+.container {
     display: flex;
     font-family: 'Montserrat', sans-serif;
 }
 
-.conteudo-principal{
+.conteudo-principal {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -80,28 +99,28 @@ export default {
     width: 100%;
     height: 500px;
 }
-.btn-sair{
+
+.btn-sair {
     display: flex;
     justify-content: flex-end;
 }
 
-.historico{
+.historico {
     display: flex;
     flex-direction: column;
 }
 
-.historico-data{
+.historico-data {
     display: flex;
 }
 
-.conteudo-historico{
+.conteudo-historico {
     display: flex;
     flex-direction: column;
 }
 
-.conteudo-historico-info{
+.conteudo-historico-info {
     display: flex;
-    
-}
 
+}
 </style>
