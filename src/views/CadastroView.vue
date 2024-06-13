@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="content-cadastro">
-           
+
             <div class="titulo-cadastro">
                 <h2 class="titulo-cadastro-form">Realize seu cadastro</h2>
                 <p class="subtitulo-paragrafo">DADOS PESSOAIS</p>
@@ -26,9 +26,9 @@
                             <input v-model="usuario.email" type="text" id="email" name="email"
                                 placeholder="Informe o endereço de e-mail" required>
                         </div>
-                        <div class="form-group">    
+                        <div class="form-group">
                             <label for="tipo">Tipo de conta</label>
-                            <select v-model="usuario.tipo" id="tipo" name="tipo" >
+                            <select v-model="usuario.tipo" id="tipo" name="tipo">
                                 <option value="" disabled>Selecione o tipo de conta</option>
                                 <option value="COMUM">COMUM</option>
                                 <option value="LOJISTA">LOJISTA</option>
@@ -46,14 +46,15 @@
                             <input type="password" id="senha2" name="senha2" placeholder="Repita sua senha de acesso">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="conta">Conta</label>
                         <input v-model="contaUsuario.agencia" type="text" id="conta" name="conta"
                             placeholder="insira sua conta" max-length="4">
-                    </div>
+                    </div> -->
 
                     <div class="form-group-btn">
-                        <button @click="cadastrarUsuario" type="submit">Finalizar cadastro</button>
+                        <button @click="cadastrarUsuario" class="btn-finalizar-cadastro" type="button">Finalizar
+                            cadastro</button>
                         <router-link to="/login">
                             <button class="btn-naocliente" type="button">Já sou cliente</button>
                         </router-link>
@@ -96,16 +97,30 @@ export default {
         async cadastrarUsuario() {
             try {
                 const response = await usuarioService.cadastrarUsuario(this.usuario);
+                console.log('Usuário cadastrado:', response);
                 this.contaUsuario.usuario.id = response.id;
+                this.contaUsuario.agencia = this.gerarNumeroAgencia();
+                console.log('Dados da conta a ser cadastrada:', this.contaUsuario);
                 await contaService.cadastrarConta(this.contaUsuario);
+                console.log('Conta cadastrada com sucesso');
+                setTimeout(() => {
+                    // Coloque aqui a ação que causa a recarga da página
+                    // Por exemplo, redirecionamento
+                    window.location.href = 'http://localhost:8090/#/cadastro';
+                }, 20000); // 5 segundos de atraso
             } catch (error) {
-                console.error(error.message);
+                console.error('Erro ao cadastrar usuário ou conta:', error.message);
                 if (error.response && error.response.data) {
                     this.error = error.response.data.messageUser || error.response.data.message || 'Erro ao cadastrar usuário';
                     console.error('Erro detalhado:', error.response.data.messageUser);
                 }
             }
-        }
+        },
+        gerarNumeroAgencia() {
+            // Gerar um número de agência (exemplo simples)
+            // Você pode implementar sua própria lógica de geração de número de agência aqui
+            return Math.floor(1000 + Math.random() * 9000).toString(); // Gera um número aleatório de 4 dígitos
+        },
     }
 }
 </script>
@@ -234,7 +249,7 @@ label {
     margin-left: 68px;
 }
 
-button[type="submit"] {
+.btn-finalizar-cadastro {
     background-color: #06004F;
     color: #E6E6ED;
     border: none;
