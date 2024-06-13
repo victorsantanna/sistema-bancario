@@ -1,10 +1,10 @@
 <template>
     <div class="container">
         <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
-        :cpf-cnpj="cpfCnpj" />
+            :cpf-cnpj="cpfCnpj" />
         <div class="body-content">
 
-            <MenuLateral />
+            <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
 
             <section class="content-section">
                 <div class="content-info-section">
@@ -16,7 +16,7 @@
                                 <img src="../assets/img/img-detalhes/frame2.png" alt="olho">
                             </div>
                             <strong>
-                                <p>R$:1400,45</p>
+                                <p>R$:{{ valorSaldo }}</p>
                             </strong>
                         </div>
                         <h3>Transação</h3>
@@ -67,22 +67,8 @@
 
     </div>
 
-    <ModalTransacaoVue :open="isOpen" @close="isOpen = !isOpen" />
-
-    <!-- <h1>Contas</h1>
-    <ul>
-        <li v-for="conta in contas" :key="conta.id">
-            <p>Conta: {{ conta.conta }}</p>
-            <p>Agência: {{ conta.agencia }}</p>
-            <p>Saldo: {{ conta.saldo }}</p>
-            <p>Usuário: {{ conta.usuario.nomeCompleto }}</p>
-            <p>CPF/CNPJ: {{ conta.usuario.cpfCnpj }}</p>
-            <p>E-mail: {{ conta.usuario.email }}</p>
-            <p>Tipo de conta: {{ conta.usuario.tipo }}</p><br>
-
-
-        </li>
-    </ul> -->
+    <ModalTransacaoVue :open="isOpen" @close="isOpen = !isOpen" @ver-comprovante="abrirComprovante" />
+    <Comprovante :open="isComprovanteOpen" @close="isComprovanteOpen = true" />
 
 
 </template>
@@ -94,6 +80,7 @@ import transacaoService from '@/services/transacoesService.js';
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
 import ModalTransacaoVue from '@/components/ModalTransacao.vue';
+import Comprovante from '@/components/Comprovante.vue';
 
 
 export default {
@@ -110,14 +97,19 @@ export default {
                 idContaOrigem: '',
                 idContaDestino: '',
                 valor: ''
-
-            }
+            },
+            nomeUsuario: '',
+            valorSaldo: 0,
+            tipoConta: '',
+            cpfCnpj: '',
+            isComprovanteOpen: false
         }
     },
     components: {
         NavbarTransacao,
         MenuLateral,
         ModalTransacaoVue,
+        Comprovante,
     },
     computed: {
         imagemAtual() {
@@ -143,9 +135,17 @@ export default {
     },
     created() {
         this.getContas();
+        this.nomeUsuario = sessionStorage.getItem('nomeUsuario') || '';
+        this.valorSaldo = Number(sessionStorage.getItem('valorSaldo')) || 0;
+        this.tipoConta = sessionStorage.getItem('tipoConta') || '';
+        this.cpfCnpj = sessionStorage.getItem('cpfCnpj') || '';
 
     },
     methods: {
+        abrirComprovante() {
+            console.log("Evento 'ver-comprovante' recebido pelo componente pai");
+            this.isComprovanteOpen = false;
+        },
         async getContas() {
             try {
                 const response = await contasService.obterContas();
