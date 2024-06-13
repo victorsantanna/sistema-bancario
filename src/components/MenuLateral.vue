@@ -1,22 +1,24 @@
 <template>
-    <aside>
-        <span id="open-btn">
-            <img src="../assets/img/img-detalhes/expandimenu.png" alt="menu">
+    <aside :class="{ 'menu-closed': !isMenuOpen, 'menu-open': isMenuOpen }" ref="menuAside">
+        <span id="open-btn" @click="toggleMenu">
+            <img ref="menuButton"
+                :class="{ 'expanded-img': isMenuOpen, 'closed-img': !isMenuOpen, 'rotated': !isMenuOpen }"
+                src="../assets/img/img-detalhes/expandimenu.png" alt="menu">
         </span>
         <div class="aside-info">
-            <router-link to="/detalhes">
+            <router-link to="/detalhes" class="no-underline">
                 <div class="aside-content">
                     <img class="aside-icon" src="../assets/img/img-detalhes/frame5.png" alt="">
-                    <p>Menu principal</p>
+                    <p v-if="isMenuOpen">Menu principal</p>
                 </div>
             </router-link>
-            <router-link to="transacao">
+            <router-link to="transacao" class="no-underline">
                 <div class="aside-content">
                     <img class="aside-icon" src="../assets/img/img-detalhes/frame6.png" alt="">
-                    <p>Realizar transação</p>
+                    <p v-if="isMenuOpen">Realizar transação</p>
                 </div>
             </router-link>
-            <router-link to="/historico">
+            <router-link to="/historico" class="no-underline">
                 <div class="aside-content">
                     <img class="aside-icon" src="../assets/img/img-detalhes/frame7.png" alt="">
                     <p>Histórico</p>
@@ -25,30 +27,64 @@
             </router-link>
             <div class="aside-content">
                 <img class="aside-icon" src="../assets/img/img-detalhes/frame8.png" alt="">
-                <p>Cartões</p>
+                <p v-if="isMenuOpen">Cartões</p>
             </div>
             <div class="aside-content">
                 <img class="aside-icon" src="../assets/img/img-detalhes/frame9.png" alt="">
-                <p>Investimentos</p>
+                <p v-if="isMenuOpen">Investimentos</p>
             </div>
         </div>
         <div class="aside-config">
             <div class="config-info">
                 <img class="aside-icon" src="../assets/img/img-detalhes/frame10.png" alt="">
-                <p>Configurações</p>
+                <p v-if="isMenuOpen">Configurações</p>
             </div>
-            <div class="config-usuario">
-                <div>
-                    <img class="config-usuario-img" src="../assets/img/img-detalhes/Ellipse1.png" alt="">
-                </div>
-                <div class="config-usuario-info">
-                    <p>Lucas Silva</p>
-                    <button>LOJISTA</button>
-                </div>
-            </div>
+            
         </div>
     </aside>
 </template>
+
+<script>
+export default {
+    data() {
+        return {
+            isMenuOpen: true,
+        }
+    },
+    props: {
+        nomeUsuario: {
+            type: String,
+            required: true
+        },
+        tipoConta: {
+            type: String,
+            required: true
+        },
+        cpfCnpj: {
+            type: String,
+            required: true
+        }
+    },
+    methods: {
+        toggleMenu() {
+            this.isMenuOpen = !this.isMenuOpen;
+            const aside = this.$refs.menuAside;
+            const btn = this.$refs.menuButton;
+            if (aside && btn) {
+                if (this.isMenuOpen) {
+                    aside.classList.remove('menu-closed');
+                    btn.classList.remove('rotated');
+                } else {
+                    aside.classList.add('menu-closed');
+                    btn.classList.add('rotated');
+                }
+            } else {
+                console.error('Elementos não encontrados:', aside, btn);
+            }
+        },
+    }
+}
+</script>
 
 
 <style scoped>
@@ -58,11 +94,14 @@ aside {
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     height: 475px;
+    transition: width 0.3s ease-out;
 
 }
 
 #open-btn {
     margin-left: 202px;
+    transition: 0.3s ease;
+    cursor: pointer;
 }
 
 .aside-content {
@@ -79,7 +118,7 @@ aside {
 .aside-content {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
 }
 
 /* Estilos para textos do menu */
@@ -87,6 +126,7 @@ aside p {
     margin: 0;
     font-size: 16px;
     color: #E6E6ED;
+    width: 160px;
 }
 
 .aside-config {
@@ -138,5 +178,61 @@ aside>div:last-child button {
 
 aside>div:last-child button:hover {
     background-color: #0056b3;
+}
+
+.config-info {
+    cursor: pointer;
+}
+
+.config-info {
+    cursor: pointer;
+}
+
+.no-underline {
+    text-decoration: none;
+}
+
+.menu-closed {
+    width: 60px;
+    transition: width 0.2s ease-in-out;
+    
+}
+
+.menu-closed .aside-content p,
+.menu-closed .config-info p,
+.menu-closed .config-usuario-info p,
+.menu-closed .config-usuario-info button {
+    display: none;
+    
+}
+
+.menu-closed .aside-content {
+    justify-content: center;
+}
+
+.menu-closed .aside-icon {
+    width: 21px;
+    height: 21px;
+    margin: 1px;
+}
+
+.menu-closed .aside-config {
+    margin-top: 20px;
+}
+
+.menu-closed .config-info{
+    margin-left: 15px;
+    margin-top: 60px;
+}
+
+.rotated {
+    transform: rotate(180deg);
+    transition: transform 0.2s ease-in-out;
+}
+
+.menu-closed #open-btn {
+    margin-left: 62px;
+    transition: margin-left 0.2s ease-in-out;
+    
 }
 </style>
