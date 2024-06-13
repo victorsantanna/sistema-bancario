@@ -2,7 +2,7 @@
     <div class="container">
         <div class="conteudo-login">
             <div class="conteudo-imagem-login">
-                <img class="imagem-login" src="../assets/img/img-login/login.png" alt="Imagem login" loading="eager">
+                <img class="imagem-login" src="../assets/img/img-login/login.png" alt="Imagem login" loading="lazy">
             </div>
             <div class="conteudo-info-formulario">
                 <h2>Acesse sua conta</h2>
@@ -58,12 +58,11 @@ export default {
     methods: {
         async loginPorCpfCnpj() {
             try {
-                console.log('Logado!')
                 const response = await usuarioService.obterUsuarioPorCpfCnpj(this.cpfCnpj);
                 if (response.content[0].id != undefined) {
+                    sessionStorage.clear();
                     sessionStorage.setItem('idUsuario', response.content[0].id);
                     this.$router.push({ name: 'detalhes' })
-
                 }
             } catch (error) {
                 console.error(error);
@@ -169,7 +168,7 @@ input[type="checkbox"] {
 
 }
 
-.btn-login{
+.btn-login {
     background-color: #06004F;
     color: #E6E6ED;
     border: none;
@@ -180,7 +179,7 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 
-button[type="submit"]:hover {
+.btn-login:hover {
     background-color: #080065;
 }
 
