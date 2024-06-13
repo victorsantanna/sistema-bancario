@@ -8,7 +8,7 @@
         </router-link>
         <div class="navbar-info">
             <div class="navbar-info-usuario">
-                <h4>{{ this.nomeUsuario }}</h4>
+                <h4>{{   capitalizarPrimeirasLetras(nomeUsuario) }}</h4>
                 <p>{{ formatarCpfCnpj(cpfCnpj) }}</p>
             </div>
             <div>
@@ -21,7 +21,6 @@
 <script>
 export default {
     props: {
-
         nomeUsuario: {
             type: String,
             required: true
@@ -39,7 +38,7 @@ export default {
             required: true
         }
     },
-    methods:{
+    methods: {
         formatarCpfCnpj(cpfCnpj) {
             if (cpfCnpj && cpfCnpj.length === 11) {
                 return cpfCnpj.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "***.$2.$3-**");
@@ -48,7 +47,11 @@ export default {
             } else {
                 return cpfCnpj;
             }
+        },
+        capitalizarPrimeirasLetras(str) {
+            return str.replace(/\b\w/g, char => char.toUpperCase());
         }
+
     }
 }
 
