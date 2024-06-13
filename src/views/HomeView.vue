@@ -2,7 +2,7 @@
   <div class="container">
     <div class="conteudo-home">
       <div class="conteudo-imagem-home">
-        <img class="imagem-home" src="../assets/img/img-home/logo4.png" alt="imagem home" loading="eager">
+        <img class="imagem-home" src="../assets/img/img-home/logo4.png" alt="imagem home" loading="lazy">
       </div>
       <div class="conteudo-info-home">
         <div class="conteudo-info">
@@ -52,19 +52,19 @@ export default {
   justify-content: center;
   justify-content: space-around;
   align-items: center;
-  width: 1240px;
-  height: 500px;
-  margin-top: 18px;
+  width: 100vw;
+  height: 100vh;
   margin-bottom: 50px;
 }
 
 .conteudo-home {
-  width: 1200px;
-  height: 400px;
+  width: 1100px;
+  height: 100px;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
+  margin-bottom: 60px;
 }
 
 .imagem-home {
@@ -82,6 +82,10 @@ h2 {
   font-size: 29px;
   font-weight: 700;
   color: #06004F;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 4px;
+
 
 }
 
@@ -89,16 +93,15 @@ p {
   font-size: 18px;
   font-weight: 400;
   color: #06004F;
-  margin: 0;
   margin-bottom: 20px;
-  padding: 0;
+
 }
 
 .conteudo-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 450px;
+  width: 440px;
 }
 
 .botao-info {
@@ -162,5 +165,139 @@ p {
 
 .img-segunda-parte {
   width: 500px;
+}
+
+@media (max-width: 394px) {
+  .container {
+    padding: 0;
+    margin: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 250px;
+  }
+
+  h2 {
+    font-size: 20px;
+    color: #06004F;
+    margin-bottom: 4px;
+
+
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  .conteudo-home {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    margin: 10px;
+    
+    
+  }
+
+  .conteudo-info {
+    width: 90%;
+    margin: 0;
+    padding: 0;
+    
+  }
+
+  .botao-info {
+    width: 220px;
+    font-size: 12px;
+  }
+
+  .container-segunda-parte{
+    width: 80%;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 900px;
+  }
+  .conteudo-segunda-parte{
+    width: 50%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .conteudo-segunda-parte h2 {
+    font-size: 20px;
+    
+  }
+
+  .conteudo-segunda-parte p {
+    font-size: 14px;
+   
+  }
+
+  .gradiente-linha {
+    width: 100px;
+  }
+
+  .imagem-home,
+  .img-segunda-parte {
+    display: none;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  .conteudo-home {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    margin: 10px;
+    margin-bottom: 350px;
+    padding: 0;
+  }
+
+  .conteudo-info {
+    width: 90%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .botao-info {
+    width: 220px;
+    font-size: 12px;
+  }
+
+  .conteudo-segunda-parte h2 {
+    width: 100%;
+    font-size: 20px;
+  }
+
+  .conteudo-segunda-parte p {
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .gradiente-linha {
+    width: 80px;
+  }
+
+  .imagem-home,
+  .img-segunda-parte {
+    display: none;
+  }
+
 }
 </style>
