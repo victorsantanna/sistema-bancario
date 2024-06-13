@@ -3,7 +3,8 @@
 
         <NavbarTransacaoVue />
         <MenuLateral />
-        <comprovante-vue />
+        
+        <ProcessamentoVue />
     </div>
 
 
@@ -13,10 +14,11 @@
 import NavbarTransacaoVue from "@/components/NavbarTransacao.vue";
 import MenuLateral from "@/components/MenuLateral.vue";
 import ComprovanteVue from '@/components/Comprovante.vue';
+import ProcessamentoVue from '@/components/Processamento.vue';
 
 export default {
     components: {
-        NavbarTransacaoVue, MenuLateral, ComprovanteVue,
+        NavbarTransacaoVue, MenuLateral, ComprovanteVue, ProcessamentoVue,
     }
 }
 
