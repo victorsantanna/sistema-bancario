@@ -3,11 +3,11 @@
         :cpf-cnpj="cpfCnpj" />
     <div class="container">
         <div class="body-content">
-            <MenuLateral />
+            <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
             <section class="content-section">
                 <div class="content-info-section">
                     <div class="content-info-usuario">
-                        <h3>Bem-vindo(a), {{ this.nomeUsuario }}</h3>
+                        <h3>Bem-vindo(a), {{ capitalizarPrimeirasLetras(nomeUsuario) }}</h3>
                         <div class="content-saldo-usuario">
                             <p>Saldo em conta</p>
                             <img v-if="olhoFechado" @click="toggleOlho" class="img-olho"
@@ -24,12 +24,11 @@
                         <h3>Transações recentes</h3>
                         <div>
                             <div class="scroll-box">
-
-                                <div class="content-transacoes-usuario">
+                                <div v-for="(transaction, index) in transactions" :key="index" class="content-transacoes-usuario">
                                     <div class="content-transacoes-info">
                                         <h4>Transferência recebida</h4>
-                                        <p>R$: 160,00</p>
-                                        <p>Lucas Silva</p>
+                                        <p>R$: {{ transaction.valor }}</p>
+                                        <p>{{ transaction.contaDestino.usuario.nomeCompleto }}</p>
                                     </div>
                                     <div>
                                         <img src="../assets/img/img-detalhes/frame3.png" alt="">
@@ -70,13 +69,9 @@
                     </div>
                 </div>
                 <div class="section-secundaria">
-                    <router-link to="/">
-                        <div class="botao-sair">
-                            <button class="btn-sair"> Sair</button>
-                            <img src="../assets/img/img-detalhes/frame12.png" alt="">
-                        </div>
 
-                    </router-link>
+                    <BotaoSair />
+
                     <div>
                         <img class="section-banner" :src="imagemAtual" alt="">
                     </div>
@@ -96,10 +91,11 @@ import contasService from '@/services/contasService.js';
 import transacoesService from '@/services/transacoesService.js';
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
+import BotaoSair from '@/components/BotaoSair.vue';
 
 export default {
     components: {
-        NavbarTransacao, MenuLateral,
+        NavbarTransacao, MenuLateral, BotaoSair,
     },
     data() {
         return {
@@ -111,9 +107,43 @@ export default {
                 require('@/assets/img/img-detalhes/banner3.png')
             ],
             nomeUsuario: '',
-            valorSaldo: '',
+            valorSaldo: 0,
             tipoConta: '',
             cpfCnpj: '',
+            transactions: [
+                {
+                    contaDestino: {
+                        agencia: "",
+                        conta: "",
+                        id: '',
+                        saldo: '',
+                        usuario: {
+                            cpfCnpj: '',
+                            email: '',
+                            id: '',
+                            nomeCompleto: '',
+                            tipo: '',
+                        }
+                    },
+                    contaOrigem: {
+                        agencia: '',
+                        conta: '',
+                        id: '',
+                        saldo: '',
+                        usuario: {
+                            cpfCnpj: '',
+                            email: '',
+                            id: '',
+                            nomeCompleto: '',
+                            tipo:'',
+                        }
+                    },
+                    data: '',
+                    id: '',
+                    tipo: '',
+                    valor: '',
+                },
+            ],
 
         }
     },
@@ -128,29 +158,31 @@ export default {
         }, 5000);
     },
     created() {
-        this.getContas();
         this.getTransacoes();
         this.getContaPorId();
     },
     methods: {
+        capitalizarPrimeirasLetras(str) {
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        },
         toggleOlho() {
             this.olhoFechado = !this.olhoFechado;
         },
-        async getContas() {
-            try {
-                const response = await contasService.obterContas();
-                console.log(response);
+        // async getContas() {
+        //     try {
+        //         const response = await contasService.obterContas();
+        //         console.log(response);
 
-                return response
-            } catch (error) {
-                console.error(error);
-            }
-        },
+        //         return response
+        //     } catch (error) {
+        //         console.error(error);
+        //     }
+        // },
         async getTransacoes() {
             try {
                 const response = await transacoesService.obterTransacoes();
                 console.log(response);
-
+                this.transactions = response.content;
                 return response
             } catch (error) {
                 console.error(error);
@@ -160,12 +192,19 @@ export default {
             try {
                 const idUsuario = sessionStorage.getItem('idUsuario');
                 console.log('Id do usuário ' + idUsuario)
-                const response = await contasService.obterContasPorId(sessionStorage.getItem('idUsuario'));
+                const response = await contasService.obterContasPorId(idUsuario);
                 console.log(response);
+
+                sessionStorage.setItem('nomeUsuario', response.usuario.nomeCompleto);
+                sessionStorage.setItem('valorSaldo', response.saldo);
+                sessionStorage.setItem('tipoConta', response.usuario.tipo);
+                sessionStorage.setItem('cpfCnpj', response.usuario.cpfCnpj);
+
                 this.nomeUsuario = response.usuario.nomeCompleto;
                 this.valorSaldo = response.saldo;
                 this.tipoConta = response.usuario.tipo;
                 this.cpfCnpj = response.usuario.cpfCnpj;
+
                 return response
             } catch (error) {
                 console.error(error);
