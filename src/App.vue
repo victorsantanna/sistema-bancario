@@ -45,10 +45,17 @@ export default {
 </script>
 
 <style>
+
 #app {
   font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  max-width: 1000px;
+  
 }
+body, html, #app {
+    height: 100%;
+    width: 100%;
+}
+
+
 </style>
