@@ -25,11 +25,7 @@ export default {
 </script>
 
 <style scoped>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+
 
 .container {
     font-family: 'Montserrat', sans-serif;
@@ -84,11 +80,13 @@ export default {
     height: 22px;
     cursor: pointer;
     margin-top: 2px;
+    margin-right: 2px;
 
 }
 
 .no-underline {
     text-decoration: none;
+    margin-right: 50px;
 }
 
 /* media queries */
