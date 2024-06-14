@@ -109,10 +109,16 @@ aside {
     cursor: pointer;
 }
 
+
 .aside-icon {
     width: 18px;
     height: 18px;
     margin-right: 10px;
+}
+
+.aside-icon:hover{
+    width: 19px;
+    height: 19px;
 }
 
 .aside-content {
@@ -126,7 +132,12 @@ aside p {
     margin: 0;
     font-size: 16px;
     color: #E6E6ED;
-    width: 160px;
+    transition: font-size 0.3s;
+    
+}
+
+aside p:hover{
+    font-size: 17px;
 }
 
 .aside-config {
@@ -214,6 +225,11 @@ aside>div:last-child button:hover {
     width: 21px;
     height: 21px;
     margin: 1px;
+    transition: width 0.3s, height 0.3s;
+}
+.menu-closed .aside-icon:hover{
+    width: 27px;
+    height: 25px;
 }
 
 .menu-closed .aside-config {
