@@ -2,7 +2,7 @@
   <div class="container">
     <div class="conteudo-home">
       <div class="conteudo-imagem-home">
-        <img class="imagem-home" src="../assets/img/img-home/logo4.png" alt="imagem home" loading="lazy">
+        <img class="imagem-home" src="../assets/img/img-home/logo4.png" alt="imagem home">
       </div>
       <div class="conteudo-info-home">
         <div class="conteudo-info">
