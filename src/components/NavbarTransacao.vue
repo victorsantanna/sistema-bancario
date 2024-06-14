@@ -8,7 +8,7 @@
         </router-link>
         <div class="navbar-info">
             <div class="navbar-info-usuario">
-                <h4>{{   capitalizarPrimeirasLetras(nomeUsuario) }}</h4>
+                <h4>{{ capitalizarPrimeirasLetras(nomeUsuario) }}</h4>
                 <p>{{ formatarCpfCnpj(cpfCnpj) }}</p>
             </div>
             <div>
@@ -42,7 +42,7 @@ export default {
         formatarCpfCnpj(cpfCnpj) {
             if (cpfCnpj && cpfCnpj.length === 11) {
                 return cpfCnpj.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "***.$2.$3-**");
-            } else if (cpfCnpj && cpfCnpj.length === 11) {
+            } else if (cpfCnpj && cpfCnpj.length === 14) {
                 return cpfCnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "**.$2.$3/****");
             } else {
                 return cpfCnpj;
@@ -82,11 +82,15 @@ nav {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin: 50px;
+    margin-right: 50px;
 }
 
 .navbar-info-usuario {
     margin: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
 
 }
 
@@ -95,7 +99,7 @@ nav {
 }
 
 .navbar-info-usuario p {
-    text-indent: 33px;
+
     font-size: 14px;
 }
 
