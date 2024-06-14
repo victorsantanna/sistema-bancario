@@ -1,23 +1,29 @@
 <template>
+    <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
+        :cpf-cnpj="cpfCnpj" />
     <div class="container">
-        <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
-            :cpf-cnpj="cpfCnpj" />
         <div class="body-content">
-
             <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
-
             <section class="content-section">
                 <div class="content-info-section">
-
                     <div class="content-transacoes-info">
                         <div class="content-info-usuario">
                             <div class="content-saldo-usuario">
                                 <p>Saldo em conta</p>
-                                <img src="../assets/img/img-detalhes/frame2.png" alt="olho">
+                                <img v-if="olhoFechado" @click="toggleOlho" class="img-olho"
+                                    src="../assets/img/img-detalhes/frame2.png" alt="olho" />
+                                <img v-else @click="toggleOlho" class="img-olho"
+                                    src="../assets/img/img-detalhes/olhofechado.png" alt="olhofechado" />
                             </div>
                             <strong>
-                                <p>R$:{{ valorSaldo }}</p>
+                                <p  v-if="olhoFechado">{{ formatarMoeda(valorSaldo) }}</p>
+                                <p v-else class="oculto">*********</p>
                             </strong>
+                        </div>
+                        <div class="content-info-transacao">
+                            <button class="btn-info-transacao" >Dados da conta</button>
+                            <button class="btn-info-transacao" >Valor</button>
+                            <button class="btn-info-transacao" >Concluir</button>
                         </div>
                         <h3>Transação</h3>
                         <p>Preencha os campos a seguir com os dados da conta que deseja transferir.</p>
@@ -86,6 +92,7 @@ import Comprovante from '@/components/Comprovante.vue';
 export default {
     data() {
         return {
+            olhoFechado: true,
             contas: [],
             indiceAtual: 0,
             imagens: [
@@ -142,6 +149,12 @@ export default {
 
     },
     methods: {
+        formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+        },
+        toggleOlho() {
+            this.olhoFechado = !this.olhoFechado;
+        },
         abrirComprovante() {
             console.log("Evento 'ver-comprovante' recebido pelo componente pai");
             this.isComprovanteOpen = false;
@@ -182,19 +195,11 @@ export default {
     justify-content: space-between;
 }
 
-.menu-info {
-    display: flex;
-    flex-direction: row;
-
-}
-
-
-
 .content-section {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    margin: 45px;
+    margin-left: 45px;
 }
 
 .content-info-section {
@@ -247,6 +252,7 @@ h3 {
 .content-transacoes-info {
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
 
 
 }
@@ -364,4 +370,30 @@ h4 {
     justify-content: center;
     align-items: flex-end;
 }
+.oculto {
+    background-color: #D9D9D9;
+    padding: 10px 20px;
+    width: 100px;
+    border-radius: 5px;
+    display: inline-block;
+    color: #D9D9D9;
+}
+
+.btn-info-transacao{
+    font-size: 14px;
+    border: none;
+    background-color: #fff;
+    border-bottom: 2px solid #B2B0C8;
+    color: #B2B0C8;
+    cursor: pointer;
+    width: 150px;
+   
+}
+
+.btn-info-transacao:focus{
+    border-bottom: 2px solid #06004F;
+    color: #06004F;
+    font-weight: bold;
+}
+
 </style>
