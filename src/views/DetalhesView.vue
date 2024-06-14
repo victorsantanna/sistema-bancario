@@ -1,8 +1,8 @@
 <template>
-    <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
-        :cpf-cnpj="cpfCnpj" />
     <div class="container">
-        <div class="body-content">
+        <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
+            :cpf-cnpj="cpfCnpj" />
+        <div class="conteudo-corpo">
             <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
             <section class="content-section">
                 <div class="content-info-section">
@@ -24,7 +24,8 @@
                         <h3>Transações recentes</h3>
                         <div>
                             <div class="scroll-box">
-                                <div v-for="(transaction, index) in transactions" :key="index" class="content-transacoes-usuario">
+                                <!-- <div v-for="(transaction, index) in transactions" :key="index"
+                                    class="content-transacoes-usuario">
                                     <div class="content-transacoes-info">
                                         <h4>Transferência recebida</h4>
                                         <p>R$: {{ transaction.valor }}</p>
@@ -33,7 +34,7 @@
                                     <div>
                                         <img src="../assets/img/img-detalhes/frame3.png" alt="">
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="content-transacoes-usuario">
                                     <div class="content-transacoes-info">
                                         <h4>Transferência realizada</h4>
@@ -70,7 +71,7 @@
                 </div>
                 <div class="section-secundaria">
 
-                    <BotaoSair />
+                    <BotaoSair class="btn-sair" />
 
                     <div>
                         <img class="section-banner" :src="imagemAtual" alt="">
@@ -100,50 +101,52 @@ export default {
     data() {
         return {
             olhoFechado: true,
+
             indiceAtual: 0,
             imagens: [
                 require('@/assets/img/img-detalhes/banner1.png'),
                 require('@/assets/img/img-detalhes/banner2.png'),
                 require('@/assets/img/img-detalhes/banner3.png')
             ],
+            id: '',
             nomeUsuario: '',
             valorSaldo: 0,
             tipoConta: '',
             cpfCnpj: '',
-            transactions: [
-                {
-                    contaDestino: {
-                        agencia: "",
-                        conta: "",
-                        id: '',
-                        saldo: '',
-                        usuario: {
-                            cpfCnpj: '',
-                            email: '',
-                            id: '',
-                            nomeCompleto: '',
-                            tipo: '',
-                        }
-                    },
-                    contaOrigem: {
-                        agencia: '',
-                        conta: '',
-                        id: '',
-                        saldo: '',
-                        usuario: {
-                            cpfCnpj: '',
-                            email: '',
-                            id: '',
-                            nomeCompleto: '',
-                            tipo:'',
-                        }
-                    },
-                    data: '',
-                    id: '',
-                    tipo: '',
-                    valor: '',
-                },
-            ],
+            // transactions: [
+            //     {
+            //         contaDestino: {
+            //             agencia: "",
+            //             conta: "",
+            //             id: '',
+            //             saldo: '',
+            //             usuario: {
+            //                 cpfCnpj: '',
+            //                 email: '',
+            //                 id: '',
+            //                 nomeCompleto: '',
+            //                 tipo: '',
+            //             }
+            //         },
+            //         contaOrigem: {
+            //             agencia: '',
+            //             conta: '',
+            //             id: '',
+            //             saldo: '',
+            //             usuario: {
+            //                 cpfCnpj: '',
+            //                 email: '',
+            //                 id: '',
+            //                 nomeCompleto: '',
+            //                 tipo: '',
+            //             }
+            //         },
+            //         data: '',
+            //         id: '',
+            //         tipo: '',
+            //         valor: '',
+            //     },
+            // ],
 
         }
     },
@@ -158,8 +161,9 @@ export default {
         }, 5000);
     },
     created() {
-        this.getTransacoes();
+        // this.getTransacoes();
         this.getContaPorId();
+        this.getTransacoesPorId();
     },
     methods: {
         capitalizarPrimeirasLetras(str) {
@@ -182,7 +186,7 @@ export default {
             try {
                 const response = await transacoesService.obterTransacoes();
                 console.log(response);
-                this.transactions = response.content;
+        
                 return response
             } catch (error) {
                 console.error(error);
@@ -200,10 +204,22 @@ export default {
                 sessionStorage.setItem('tipoConta', response.usuario.tipo);
                 sessionStorage.setItem('cpfCnpj', response.usuario.cpfCnpj);
 
+                this.id = response.id;
                 this.nomeUsuario = response.usuario.nomeCompleto;
                 this.valorSaldo = response.saldo;
                 this.tipoConta = response.usuario.tipo;
                 this.cpfCnpj = response.usuario.cpfCnpj;
+
+                return response
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async getTransacoesPorId() {
+            try {
+                
+                const response = await transacoesService.obterTransacaoPorId(idUsuario);
+                console.log(response);
 
                 return response
             } catch (error) {
@@ -236,14 +252,10 @@ export default {
 
 }
 
-.body-content {
+.conteudo-corpo {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-}
-
-.content-section {
-    display: flex;
 }
 
 .content-section {
@@ -384,8 +396,7 @@ h4 {
     background-color: #fff;
     color: #06004F;
     cursor: pointer;
-    margin-right: 12px;
-    font-weight: bold;
+    margin-bottom: 30px;
 }
 
 .notificacao {
@@ -400,14 +411,10 @@ h4 {
 
 .oculto {
     background-color: #D9D9D9;
-    /* Cor de fundo cinza claro */
     padding: 10px 20px;
     width: 100px;
-    /* Espaçamento interno */
     border-radius: 5px;
-    /* Borda arredondada */
     display: inline-block;
-    /* Para que o elemento se comporte como um bloco */
     color: #D9D9D9;
 }
 </style>
