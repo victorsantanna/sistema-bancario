@@ -4,7 +4,9 @@
         <div class="container">
             <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
             <div class="conteudo-principal">
-                <BotaoSair class="btn-sair" />
+                <div class="fixed-button">
+                    <BotaoSair class="btn-sair" />
+                </div>
                 <div class="historico">
                     <h3>Historico de transação</h3>
                     <div class="historico-data">
@@ -122,13 +124,20 @@ export default {
     margin-left: 80px;
     width: 67%;
     height: 290px;
-    
+
+}
+
+.fixed-button {
+    position: fixed;
+    top: 115px;
+    right: 10px;
+    z-index: 1000; /* Garante que o botão esteja acima de outros conteúdos */
 }
 
 .btn-sair {
     display: flex;
     justify-content: flex-end;
-    
+
 
 
 }
@@ -136,7 +145,7 @@ export default {
 .historico {
     display: flex;
     flex-direction: column;
-    
+
     margin-bottom: 20px;
 }
 
@@ -165,7 +174,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-   
+
 
 
 }
