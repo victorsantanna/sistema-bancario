@@ -11,6 +11,7 @@ import Navbar from './components/Navbar.vue';
 import usuarioService from './services/usuariosService'
 
 
+
 export default {
   components: {
     Navbar,
@@ -18,6 +19,7 @@ export default {
   data() {
     return {
       users: [],
+      isLoading: false,
     }
   },
   computed: {
@@ -25,6 +27,7 @@ export default {
       return this.$route.path === '/login' || this.$route.path === '/cadastro' || this.$route.path === '/detalhes' || this.$route.path === '/teste' || this.$route.path === '/transacao' || this.$route.path === '/historico';
     },
   },
+
   //created(){
   //  this.getUsuarios();
   // },
@@ -45,17 +48,17 @@ export default {
 </script>
 
 <style>
-
 #app {
   font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-}
-body, html, #app {
-    height: 100%;
-    width: 100%;
+
 }
 
-
+body,
+html,
+#app {
+  height: 100%;
+  width: 1208px;
+}
 </style>
