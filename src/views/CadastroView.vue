@@ -1,5 +1,7 @@
 <template>
     <div class="container">
+        <VueElementLoading :active="isLoading" :is-full-screen="true" spinner="spinner" color="#06004F"
+            text="Carregando" duration="1" size="60" />
         <div class="content-cadastro">
 
             <div class="titulo-cadastro">
@@ -11,46 +13,58 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nome">Nome Completo</label>
-                            <input v-model="usuario.nomeCompleto" type="text" id="nome" name="nome"
-                                placeholder="Informe o seu nome completo" required>
+                            <input
+                                :class="{ 'input-error': erroNomeCompleto, 'input-success': !erroNomeCompleto && usuario.nomeCompleto }"
+                                @blur="validarNomeCompleto" v-model="usuario.nomeCompleto" type="text" id="nome"
+                                name="nome" placeholder="Informe o seu nome completo" required>
+                            <p v-if="erroNomeCompleto" class="mensagem-erro">{{ erroNomeCompleto }}</p>
                         </div>
                         <div class="form-group">
                             <label for="cpfcnpj">CPF/CNPJ</label>
-                            <input v-model="usuario.cpfCnpj" type="text" id="cpfcnpj" name="cpfcnpj"
-                                placeholder="Informe seu CPF ou CNPJ" required>
+                            <input
+                                :class="{ 'input-error': erroCpfCnpj, 'input-success': !erroCpfCnpj && usuario.cpfCnpj }"
+                                v-model="usuario.cpfCnpj" v-mask="cpfCnpjMask" @blur="validarCpfCnpj" type="text"
+                                id="cpfcnpj" name="cpfcnpj" placeholder="Informe seu CPF ou CNPJ" required>
+                            <p v-if="erroCpfCnpj" class="mensagem-erro">{{ erroCpfCnpj }}</p>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="email">E-mail</label>
-                            <input v-model="usuario.email" type="text" id="email" name="email"
-                                placeholder="Informe o endereço de e-mail" required>
+                            <input v-model="usuario.email" @blur="validarEmail" type="text" id="email" name="email"
+                                placeholder="Informe o endereço de e-mail"
+                                :class="{ 'input-error': erroEmail, 'input-success': !erroEmail && usuario.email }"
+                                required>
+                            <p v-if="erroEmail" class="mensagem-erro">{{ erroEmail }}</p>
                         </div>
                         <div class="form-group">
                             <label for="tipo">Tipo de conta</label>
-                            <select v-model="usuario.tipo" id="tipo" name="tipo">
-                                <option value="" disabled>Selecione o tipo de conta</option>
+                            <select v-model="usuario.tipo" id="tipo" name="tipo" @change="validarTipoConta"
+                                :class="{ 'input-error': erroTipoConta, 'input-success': !erroTipoConta && usuario.tipo }">
+                                <option class="tipo-conta-disabled" value="" disabled>Selecione o tipo de conta</option>
                                 <option value="COMUM">COMUM</option>
                                 <option value="LOJISTA">LOJISTA</option>
                             </select>
+                            <p v-if="erroTipoConta" class="mensagem-erro">{{ erroTipoConta }}</p>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="senha">Senha</label>
-                            <input v-model="usuario.senha" type="password" id="senha" name="senha"
-                                placeholder="Escolha sua senha de acesso" required>
+                            <input v-model="usuario.senha" @blur="validarSenha" type="password" id="senha" name="senha"
+                                placeholder="Escolha sua senha de acesso"
+                                :class="{ 'input-error': erroSenha, 'input-success': !erroSenha && usuario.senha.length >= 8 }"
+                                required>
+                            <p v-if="erroSenha" class="mensagem-erro">{{ erroSenha }}</p>
                         </div>
                         <div class="form-group">
                             <label for="senha2">Repita a senha</label>
-                            <input type="password" id="senha2" name="senha2" placeholder="Repita sua senha de acesso">
+                            <input v-model="usuario.senhaRepetida" @blur="validarSenhaRepetida"
+                                :class="{ 'input-error': erroSenhaRepetida, 'input-success': !erroSenhaRepetida && usuario.senha === usuario.senhaRepetida }"
+                                type="password" id="senha2" name="senha2" placeholder="Repita sua senha de acesso">
+                            <p v-if="erroSenhaRepetida" class="mensagem-erro">{{ erroSenhaRepetida }}</p>
                         </div>
                     </div>
-                    <!-- <div class="form-group">
-                        <label for="conta">Conta</label>
-                        <input v-model="contaUsuario.agencia" type="text" id="conta" name="conta"
-                            placeholder="insira sua conta" max-length="4">
-                    </div> -->
 
                     <div class="form-group-btn">
                         <button @click="cadastrarUsuario" class="btn-finalizar-cadastro" type="button">Finalizar
@@ -73,28 +87,118 @@
 </template>
 
 <script>
+import VueElementLoading from 'vue-element-loading';
 import usuarioService from '@/services/usuariosService';
 import contaService from '@/services/contasService';
 export default {
+
+    components: {
+        VueElementLoading,
+    },
+
     data() {
         return {
+            erroTipoConta: '',
+            erroEmail: '',
+            erroNomeCompleto: '',
+            erroCpfCnpj: '',
+            erroSenha: '',
+            erroSenhaRepetida: '',
+
+
+            isLoading: true,
+
             usuario: {
                 nomeCompleto: '',
                 cpfCnpj: '',
                 email: '',
                 senha: '',
                 tipo: '',
+                senhaRepetida:'',
             },
+
             contaUsuario: {
                 agencia: '',
                 usuario: {
                     id: ''
                 }
-            }
+            },
         }
     },
+
     methods: {
+        limparCpfCnpj(cpfCnpj) {
+            return cpfCnpj.replace(/[^\d]/g, '');
+        },
+
+        validarSenhaRepetida() {
+            if (this.usuario.senha !== this.usuario.senhaRepetida) {
+                this.erroSenhaRepetida = 'As senhas não coincidem.';
+            } else {
+                this.erroSenhaRepetida = '';
+            }
+        },
+
+        validarSenha() {
+            if (this.usuario.senha.length < 8) {
+                this.erroSenha = 'A senha deve conter pelo menos 8 caracteres.';
+            } else {
+                this.erroSenha = '';
+            }
+        },
+
+        validarTipoConta() {
+            if (!this.usuario.tipo) {
+                this.erroTipoConta = 'Por favor, selecione o tipo de conta.';
+            } else {
+                this.erroTipoConta = '';
+            }
+        },
+
+        validarEmail() {
+            const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!this.usuario.email.match(regexEmail)) {
+                this.erroEmail = 'E-mail inválido.';
+            } else {
+                this.erroEmail = '';
+            }
+        },
+
+        validarNomeCompleto() {
+            const nomeParts = this.usuario.nomeCompleto.trim().split(' ');
+            if (nomeParts.length < 2) {
+                this.erroNomeCompleto = 'Por favor, insira seu nome completo.';
+            } else {
+                this.erroNomeCompleto = '';
+            }
+        },
+
+        validarCpfCnpj() {
+            const cpfCnpj = this.limparCpfCnpj(this.usuario.cpfCnpj);
+            if (cpfCnpj.length === 11 && this.validarCPF(cpfCnpj)) {
+                this.erroCpfCnpj = '';
+            } else if (cpfCnpj.length === 14 && this.validarCNPJ(cpfCnpj)) {
+                this.erroCpfCnpj = '';
+            } else {
+                this.erroCpfCnpj = 'CPF ou CNPJ inválido.';
+            }
+        },
+
         async cadastrarUsuario() {
+
+            this.validarNomeCompleto();
+            this.validarCpfCnpj();
+            this.validarTipoConta();
+            this.validarEmail();
+            this.validarSenha();
+            
+
+            if (this.erroNomeCompleto || this.erroCpfCnpj || this.erroEmail || this.erroTipoConta || this.erroSenha) {
+                return;
+            }
+
+            this.usuario.cpfCnpj = this.limparCpfCnpj(this.usuario.cpfCnpj);
+
             try {
                 const response = await usuarioService.cadastrarUsuario(this.usuario);
                 console.log('Usuário cadastrado:', response);
@@ -102,12 +206,7 @@ export default {
                 this.contaUsuario.agencia = this.gerarNumeroAgencia();
                 console.log('Dados da conta a ser cadastrada:', this.contaUsuario);
                 await contaService.cadastrarConta(this.contaUsuario);
-                console.log('Conta cadastrada com sucesso');
-                setTimeout(() => {
-                    // Coloque aqui a ação que causa a recarga da página
-                    // Por exemplo, redirecionamento
-                    window.location.href = 'http://localhost:8090/#/cadastro';
-                }, 20000); // 5 segundos de atraso
+                console.log('Conta cadastrada com sucesso')
             } catch (error) {
                 console.error('Erro ao cadastrar usuário ou conta:', error.message);
                 if (error.response && error.response.data) {
@@ -116,13 +215,38 @@ export default {
                 }
             }
         },
+
         gerarNumeroAgencia() {
-            // Gerar um número de agência (exemplo simples)
-            // Você pode implementar sua própria lógica de geração de número de agência aqui
-            return Math.floor(1000 + Math.random() * 9000).toString(); // Gera um número aleatório de 4 dígitos
+            return Math.floor(1000 + Math.random() * 9000).toString();
         },
-    }
+
+        validarCPF(cpf) {
+            // Função para validar CPF
+            // Implementação de validação de CPF aqui (exemplo simples)
+            return true; // Implementar lógica real de validação de CPF
+        },
+
+        validarCNPJ(cnpj) {
+            // Função para validar CNPJ
+            // Implementação de validação de CNPJ aqui (exemplo simples)
+            return true; // Implementar lógica real de validação de CNPJ
+        },
+    },
+
+    mounted() {
+        
+        setTimeout(() => {
+            this.isLoading = false;
+        }, 1200); 
+    },
+
+    computed: {
+        cpfCnpjMask() {
+            return this.usuario.cpfCnpj.length <= 14 ? '###.###.###-##' : '##.###.###/####-##';
+        }
+    },
 }
+
 </script>
 
 <style scoped>
@@ -130,7 +254,7 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    width: 1240px;
+    width: 1208px;
     height: 520px;
 }
 
@@ -164,6 +288,10 @@ export default {
     font-weight: 500;
 }
 
+select {
+    margin-bottom: 10px;
+}
+
 .content-form-cadastro {
     display: flex;
     flex-direction: row;
@@ -185,7 +313,7 @@ nav {
 }
 
 .img-cadastro {
-    width: 420px;
+    width: 444px;
     height: 590px;
 }
 
@@ -218,6 +346,7 @@ form {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
+
 }
 
 .form-group {
@@ -230,7 +359,7 @@ form {
     width: 224px;
     height: 28px;
     outline: none;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     margin-top: 5px;
 }
 
@@ -244,9 +373,29 @@ label {
     font-weight: 700;
 }
 
+
+
+#tipo {
+    width: 224px;
+    height: 28px;
+    border: none;
+    border-bottom: 1.3px solid #6B6B6B;
+    outline: none;
+    margin-top: 8px;
+}
+
+#tipo:focus {
+    border-bottom: 2.2px solid #06004F;
+}
+
+.input-success {
+    border-bottom: 2.2px solid #06004F !important;
+}
+
 .content-cadastro {
     width: 60%;
     margin-left: 68px;
+    margin-top: 40px;
 }
 
 .btn-finalizar-cadastro {
@@ -261,6 +410,10 @@ label {
     margin-right: 15px;
 }
 
+.btn-finalizar-cadastro:hover {
+    background-color: #080065;
+}
+
 .btn-naocliente {
     width: 240px;
     height: 44px;
@@ -270,5 +423,15 @@ label {
     background-color: #fff;
     font-weight: bold;
     cursor: pointer;
+}
+
+.mensagem-erro {
+    color: #F24949;
+    font-size: 12px;
+    margin: 0px;
+}
+
+.input-error {
+    border-bottom: 2.2px solid #F24949 !important;
 }
 </style>
