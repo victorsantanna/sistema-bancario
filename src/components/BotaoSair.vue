@@ -1,6 +1,6 @@
 <template>
     <router-link to="/" class="no-underline">
-        <div class="botao-sair" @click="limparSessionStorage">
+        <div class="botao-sair" @click="logout">
             <button class="btn-sair" > Sair</button>
             <img src="../assets/img/img-detalhes/frame12.png" alt="">
         </div>
@@ -10,9 +10,14 @@
 <script>
 export default {
     methods:{
-        limparSessionStorage(){
+        logout(){
+            // Limpar localStorage
+            localStorage.removeItem('isMenuOpen');
+            // Limpar sessionStorage ou outras operações de logout se necessário
             sessionStorage.clear();
-        }
+            // Redirecionar para a tela de login
+            this.$router.push('/');
+        },
     }
 }
 </script>
