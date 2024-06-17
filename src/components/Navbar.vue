@@ -29,7 +29,7 @@ export default {
 
 .container {
     font-family: 'Montserrat', sans-serif;
-    width: 1280px;
+    
     height: 80px;
     background-color: #06004F;
     display: flex;
