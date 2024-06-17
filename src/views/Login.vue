@@ -1,4 +1,6 @@
 <template>
+    <VueElementLoading :active="isLoading" :is-full-screen="true" spinner="spinner" color="#06004F" text="Carregando"
+        duration="1" size="60" />
     <div class="container">
         <div class="conteudo-login">
             <div class="conteudo-imagem-login">
@@ -9,8 +11,14 @@
 
                 <div class="grupo-formulario">
                     <label for="cpf-cnpj">CPF/CNPJ</label>
-                    <input v-model="cpfCnpj" type="text" id="cpf-cnpj" name="cpf-cnpj"
-                        placeholder="Insira seu CPF ou CNPJ">
+                    <div class="input-with-error" :class="{ 'input-error': erroLogin }">
+                        <input v-model="cpfCnpj" v-mask="cpfCnpjMask" type="text" id="cpf-cnpj" name="cpf-cnpj"
+                            placeholder="Insira seu CPF ou CNPJ">
+                        <div class="icon-error" v-if="erroLogin">
+                            <img src="../assets/img/erromsg.png" alt="Ícone de erro">
+                        </div>
+                    </div>
+                    <p v-if="erroLogin" class="mensagem-erro">{{ erroLogin }}</p>
                 </div>
                 <div class="grupo-formulario">
                     <label class="form-senha" for="senha">Senha</label>
@@ -44,30 +52,56 @@
 
 <script>
 import { RouterLink } from 'vue-router';
+import VueElementLoading from 'vue-element-loading';
 import usuarioService from '@/services/usuariosService';
 export default {
     name: 'HomeView',
     components: {
-        RouterLink,
+        RouterLink, VueElementLoading,
     },
     data() {
         return {
             cpfCnpj: '',
+            isLoading: true,
+            erroLogin: '',
         }
     },
     methods: {
         async loginPorCpfCnpj() {
             try {
-                const response = await usuarioService.obterUsuarioPorCpfCnpj(this.cpfCnpj);
+                const response = await usuarioService.obterUsuarioPorCpfCnpj(this.cpfCnpj.replace(/[^\d]/g, ''));
                 if (response.content[0].id != undefined) {
                     sessionStorage.clear();
                     sessionStorage.setItem('idUsuario', response.content[0].id);
                     this.$router.push({ name: 'detalhes' })
+                } else {
+                    this.erroLogin = 'Usuário não encontrado';
+                    this.limparErroAposTempo(5000);
                 }
             } catch (error) {
                 console.error(error);
+                this.erroLogin = 'Usuário não encontrado';
+                this.limparErroAposTempo(5000);
+            } finally {
+                this.isLoading = false;
             }
         },
+        limparErroAposTempo() {
+            setTimeout(() => {
+                this.erroLogin = '';
+            }, 5000);
+        }
+    },
+    computed: {
+        cpfCnpjMask() {
+            return this.cpfCnpj.length <= 14 ? '###.###.###-##' : '##.###.###/####-##';
+        }
+    },
+    mounted() {
+        
+        setTimeout(() => {
+            this.isLoading = false;
+        }, 1200); 
     }
 }
 
@@ -82,7 +116,7 @@ export default {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    width: 1240px;
+    width: 1208px;
     height: 480px;
 }
 
@@ -91,7 +125,7 @@ export default {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    width: 1250px;
+    width: 1208px;
 }
 
 .imagem-login {
@@ -101,9 +135,58 @@ export default {
 
 }
 
+.input-with-error input[type="text"] {
+     /* Padding right increased to make room for the icon */
+    margin: 0;
+    padding: 0;
+   
+    
+}
+
+.input-error {
+    border-bottom: 3px solid #F24949 !important;
+}
+
+.input-error input[type="text"] {
+   
+    border: none; /* Remove qualquer sombra de caixa */
+}
+
+.input-with-error {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+
+.icon-error {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.icon-error img {
+    width: 20px;
+    height: auto;
+}
+
+
+
+.mensagem-erro {
+    color: #F24949;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    margin-top: 10px;
+
+}
+
+
 h2 {
     color: #06004F;
     font-size: 28px;
+    margin: 0;
 }
 
 
@@ -124,8 +207,8 @@ form {
 
 .grupo-formulario label {
     display: block;
-    margin-top: 4px;
-    margin-bottom: 2px;
+    margin-top: 20px;
+    margin-bottom: 4px;
     color: #6B6B6B;
     font-weight: bold;
     font-size: 16px;
@@ -134,14 +217,15 @@ form {
 .grupo-formulario input {
     border: none;
     border-bottom: 1.3px solid #6B6B6B;
-    margin-bottom: 13px;
+    margin-bottom: 10px;
     width: 324px;
     height: 28px;
     outline: none;
+    font-size: 14px;
 }
 
 .grupo-formulario input:focus {
-    border-bottom: 2.2px solid #06004F;
+    border-bottom: 3px solid #06004F;
 }
 
 input[type="checkbox"] {
@@ -197,7 +281,7 @@ input[type="checkbox"] {
 
 .footer {
     margin-top: 30px;
-    width: 1250px;
+    width: 1248px;
     height: 77px;
     background-color: #06004F;
     box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.2);
@@ -205,9 +289,15 @@ input[type="checkbox"] {
 
 .grupo-formulario-esqueci {
     font-size: 15px;
-    margin-top: 5px;
+    margin-top: 2px;
     font-weight: 500;
     color: #358EF7;
     cursor: pointer;
+    
+}
+
+.grupo-formulario-esqueci:hover{
+    color: #06004F;
+    font-weight: bold;
 }
 </style>
