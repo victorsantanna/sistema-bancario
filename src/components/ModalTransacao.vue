@@ -24,11 +24,11 @@
 
 import { RouterLink } from 'vue-router';
 export default {
-  props: {
-    open: {
-      type: Boolean,
-      required: true
-    },  
+    props: {
+      open: {
+        type: Boolean,
+        required: true
+      },  
     setup(props, { emit }) {
       const closeModal = () => {
         emit('close', false);
