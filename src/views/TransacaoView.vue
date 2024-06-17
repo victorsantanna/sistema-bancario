@@ -5,6 +5,8 @@
         <div class="body-content">
             <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
             <section class="content-section">
+                <VueElementLoading :active="isLoading" spinner="spinner" color="#06004F" text="Carregando" duration="1"
+                    size="60" />
                 <div class="content-info-section">
                     <div class="content-transacoes-info">
                         <div class="content-info-usuario">
@@ -16,14 +18,14 @@
                                     src="../assets/img/img-detalhes/olhofechado.png" alt="olhofechado" />
                             </div>
                             <strong>
-                                <p  v-if="olhoFechado">{{ formatarMoeda(valorSaldo) }}</p>
+                                <p v-if="olhoFechado">{{ formatarMoeda(valorSaldo) }}</p>
                                 <p v-else class="oculto">*********</p>
                             </strong>
                         </div>
                         <div class="content-info-transacao">
-                            <button class="btn-info-transacao" >Dados da conta</button>
-                            <button class="btn-info-transacao" >Valor</button>
-                            <button class="btn-info-transacao" >Concluir</button>
+                            <button class="btn-info-transacao">Dados da conta</button>
+                            <button class="btn-info-transacao">Valor</button>
+                            <button class="btn-info-transacao">Concluir</button>
                         </div>
                         <h3>Transação</h3>
                         <p>Preencha os campos a seguir com os dados da conta que deseja transferir.</p>
@@ -81,6 +83,7 @@
 
 <script>
 import { ref } from 'vue';
+import VueElementLoading from 'vue-element-loading';
 import contasService from '@/services/contasService.js';
 import transacaoService from '@/services/transacoesService.js';
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
@@ -92,8 +95,12 @@ import Comprovante from '@/components/Comprovante.vue';
 export default {
     data() {
         return {
+            isLoading: true,
+
             olhoFechado: true,
+
             contas: [],
+
             indiceAtual: 0,
             imagens: [
                 require('@/assets/img/img-detalhes/banner1.png'),
@@ -113,10 +120,7 @@ export default {
         }
     },
     components: {
-        NavbarTransacao,
-        MenuLateral,
-        ModalTransacaoVue,
-        Comprovante,
+        NavbarTransacao, MenuLateral, ModalTransacaoVue, Comprovante, VueElementLoading,
     },
     computed: {
         imagemAtual() {
@@ -127,6 +131,9 @@ export default {
         setInterval(() => {
             this.indiceAtual = (this.indiceAtual + 1) % this.imagens.length;
         }, 5000);
+        setTimeout(() => {
+            this.isLoading = false;
+        }, 1200);
     },
     setup() {
         const isOpen = ref(false)
@@ -370,6 +377,7 @@ h4 {
     justify-content: center;
     align-items: flex-end;
 }
+
 .oculto {
     background-color: #D9D9D9;
     padding: 10px 20px;
@@ -379,7 +387,7 @@ h4 {
     color: #D9D9D9;
 }
 
-.btn-info-transacao{
+.btn-info-transacao {
     font-size: 14px;
     border: none;
     background-color: #fff;
@@ -387,13 +395,12 @@ h4 {
     color: #B2B0C8;
     cursor: pointer;
     width: 150px;
-   
+
 }
 
-.btn-info-transacao:focus{
+.btn-info-transacao:focus {
     border-bottom: 2px solid #06004F;
     color: #06004F;
     font-weight: bold;
 }
-
 </style>
