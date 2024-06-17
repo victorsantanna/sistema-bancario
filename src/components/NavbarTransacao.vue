@@ -62,7 +62,7 @@ export default {
 <style scoped>
 nav {
     font-family: 'Montserrat', sans-serif;
-    width: 1248px;
+    width: 100%;
     height: 80px;
     background-color: #06004F;
     display: flex;
@@ -115,6 +115,6 @@ nav {
     color: #E6E6ED;
     padding: 7px 20px;
     border-radius: 4px;
-    cursor: pointer;
+    
 }
 </style>
