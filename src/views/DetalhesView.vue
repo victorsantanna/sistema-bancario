@@ -5,9 +5,11 @@
         <div class="conteudo-corpo">
             <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
             <section class="content-section">
+                <VueElementLoading :active="isLoading" :is-full-screen=true spinner="spinner" color="#06004F"
+                    text="Carregando" duration="1" size="60" />
                 <div class="content-info-section">
                     <div class="content-info-usuario">
-                        <h3>Bem-vindo(a), {{ capitalizarPrimeirasLetras(nomeUsuario) }}</h3>
+                        <h3>Bem-vindo(a), {{ }}</h3>
                         <div class="content-saldo-usuario">
                             <p>Saldo em conta</p>
                             <img v-if="olhoFechado" @click="toggleOlho" class="img-olho"
@@ -80,6 +82,8 @@
             </section>
 
         </div>
+        <ModalBemVindo :open="exibirModalBemVindo" @close="handleClose"
+            :nomeUsuario="capitalizarPrimeirasLetras(nomeUsuario)" />
 
     </div>
 
@@ -87,19 +91,26 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import VueElementLoading from 'vue-element-loading';
 import contasService from '@/services/contasService.js';
 import transacoesService from '@/services/transacoesService.js';
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
 import BotaoSair from '@/components/BotaoSair.vue';
+import ModalBemVindo from '@/components/ModalBemVindo.vue';
 
 export default {
     components: {
-        NavbarTransacao, MenuLateral, BotaoSair,
+        NavbarTransacao, MenuLateral, BotaoSair, ModalBemVindo, VueElementLoading,
     },
     data() {
         return {
+            exibirModalBemVindo: false,
+
+            isLoading: true,
+
             olhoFechado: true,
 
             indiceAtual: 0,
@@ -108,7 +119,7 @@ export default {
                 require('@/assets/img/img-detalhes/banner2.png'),
                 require('@/assets/img/img-detalhes/banner3.png')
             ],
-            id: '',
+
             nomeUsuario: '',
             valorSaldo: 0,
             tipoConta: '',
@@ -159,34 +170,35 @@ export default {
         setInterval(() => {
             this.indiceAtual = (this.indiceAtual + 1) % this.imagens.length;
         }, 5000);
+        setTimeout(() => {
+            this.isLoading = false;
+        }, 1200);
+        const modalExibido = sessionStorage.getItem('modalBemVindoExibido');
+        if (!modalExibido) {
+            this.exibirModalBemVindo = true; 
+            sessionStorage.setItem('modalBemVindoExibido', 'true'); 
+        };
     },
     created() {
-        // this.getTransacoes();
         this.getContaPorId();
         this.getTransacoesPorId();
     },
     methods: {
+        handleClose() {
+            console.log('Modal close event received'); 
+            this.exibirModalBemVindo = false;
+        },
         capitalizarPrimeirasLetras(str) {
             return str.replace(/\b\w/g, char => char.toUpperCase());
         },
         toggleOlho() {
             this.olhoFechado = !this.olhoFechado;
         },
-        // async getContas() {
-        //     try {
-        //         const response = await contasService.obterContas();
-        //         console.log(response);
-
-        //         return response
-        //     } catch (error) {
-        //         console.error(error);
-        //     }
-        // },
         async getTransacoes() {
             try {
                 const response = await transacoesService.obterTransacoes();
                 console.log(response);
-        
+
                 return response
             } catch (error) {
                 console.error(error);
@@ -204,11 +216,12 @@ export default {
                 sessionStorage.setItem('tipoConta', response.usuario.tipo);
                 sessionStorage.setItem('cpfCnpj', response.usuario.cpfCnpj);
 
-                this.id = response.id;
+
                 this.nomeUsuario = response.usuario.nomeCompleto;
                 this.valorSaldo = response.saldo;
                 this.tipoConta = response.usuario.tipo;
                 this.cpfCnpj = response.usuario.cpfCnpj;
+
 
                 return response
             } catch (error) {
@@ -217,7 +230,7 @@ export default {
         },
         async getTransacoesPorId() {
             try {
-                
+                const idUsuario = sessionStorage.getItem('idUsuario');
                 const response = await transacoesService.obterTransacaoPorId(idUsuario);
                 console.log(response);
 
@@ -237,7 +250,7 @@ export default {
             } else {
                 return cpfCnpj;
             }
-        }
+        },
 
     },
 
