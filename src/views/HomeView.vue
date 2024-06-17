@@ -1,4 +1,5 @@
 <template>
+  <VueElementLoading :active="isLoading" spinner="spinner" color="#06004F" text="Carregando" duration="1" size="60" :is-full-screen=true />
   <div class="container">
     <div class="conteudo-home">
       <div class="conteudo-imagem-home">
@@ -34,11 +35,23 @@
 
 <script>
 import { RouterLink } from 'vue-router';
+import VueElementLoading from 'vue-element-loading';
 
 export default {
   name: 'HomeView',
   components: {
-    RouterLink,
+    RouterLink,VueElementLoading,
+  },
+  data(){
+    return{
+      isLoading: true,
+    };
+  },
+  mounted() {
+    // Simular um atraso de carregamento para fins de demonstração
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 1200); // Ajuste o tempo conforme necessário
   }
 }
 
@@ -52,9 +65,9 @@ export default {
   justify-content: center;
   justify-content: space-around;
   align-items: center;
-  width: 100vw;
+  width: 1150px;
   height: 100vh;
-  margin-bottom: 50px;
+  margin-bottom: 10px;
 }
 
 .conteudo-home {
@@ -64,7 +77,7 @@ export default {
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
-  margin-bottom: 60px;
+  margin-bottom: 10px;
 }
 
 .imagem-home {
@@ -128,8 +141,8 @@ p {
   justify-content: center;
   align-content: center;
   align-items: center;
-  width: 1240px;
-  height: 500px;
+  width: 1150px;
+  
 }
 
 .conteudo-segunda-parte {
@@ -137,6 +150,7 @@ p {
   padding: 50px;
   margin: 30px;
   margin-right: 150px;
+  
 }
 
 .conteudo-segunda-parte h2 {
