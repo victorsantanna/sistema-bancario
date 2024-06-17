@@ -1,27 +1,31 @@
 <template>
-    <div>
-
-        <NavbarTransacaoVue />
-        <MenuLateral />
-        
-        <ProcessamentoVue />
-    </div>
-
-
+  <modal-bem-vindo-vue @close="isOpen = !isOpen" />
 </template>
 
 <script>
-import NavbarTransacaoVue from "@/components/NavbarTransacao.vue";
-import MenuLateral from "@/components/MenuLateral.vue";
-import ComprovanteVue from '@/components/Comprovante.vue';
-import ProcessamentoVue from '@/components/Processamento.vue';
+import ModalBemVindoVue from '@/components/ModalBemVindo.vue';
+import { ref } from 'vue';
 
 export default {
-    components: {
-        NavbarTransacaoVue, MenuLateral, ComprovanteVue, ProcessamentoVue,
-    }
-}
+    components:{
+        ModalBemVindoVue,
+    },
+    setup() {
+        const isOpen = ref(true)
 
+        const openModal = () => {
+            isOpen.value = false
+
+            return isOpen.value
+        }
+        return {
+            isOpen, openModal
+        }
+    },
+
+}
 </script>
 
-<style></style>
+<style>
+
+</style>
