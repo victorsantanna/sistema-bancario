@@ -39,7 +39,7 @@
                 <img class="aside-icon" src="../assets/img/img-detalhes/frame10.png" alt="">
                 <p v-if="isMenuOpen">Configurações</p>
             </div>
-            
+
         </div>
     </aside>
 </template>
@@ -68,6 +68,7 @@ export default {
     methods: {
         toggleMenu() {
             this.isMenuOpen = !this.isMenuOpen;
+            localStorage.setItem('isMenuOpen', JSON.stringify(this.isMenuOpen));
             const aside = this.$refs.menuAside;
             const btn = this.$refs.menuButton;
             if (aside && btn) {
@@ -82,7 +83,14 @@ export default {
                 console.error('Elementos não encontrados:', aside, btn);
             }
         },
-    }
+    },
+    mounted() {
+        
+        const storedMenuState = localStorage.getItem('isMenuOpen');
+        if (storedMenuState) {
+            this.isMenuOpen = JSON.parse(storedMenuState);
+        }
+    },
 }
 </script>
 
@@ -116,7 +124,7 @@ aside {
     margin-right: 10px;
 }
 
-.aside-icon:hover{
+.aside-icon:hover {
     width: 19px;
     height: 19px;
 }
@@ -133,10 +141,10 @@ aside p {
     font-size: 16px;
     color: #E6E6ED;
     transition: font-size 0.3s;
-    
+
 }
 
-aside p:hover{
+aside p:hover {
     font-size: 17px;
 }
 
@@ -206,7 +214,7 @@ aside>div:last-child button:hover {
 .menu-closed {
     width: 60px;
     transition: width 0.2s ease-in-out;
-    
+
 }
 
 .menu-closed .aside-content p,
@@ -214,7 +222,7 @@ aside>div:last-child button:hover {
 .menu-closed .config-usuario-info p,
 .menu-closed .config-usuario-info button {
     display: none;
-    
+
 }
 
 .menu-closed .aside-content {
@@ -227,7 +235,8 @@ aside>div:last-child button:hover {
     margin: 1px;
     transition: width 0.3s, height 0.3s;
 }
-.menu-closed .aside-icon:hover{
+
+.menu-closed .aside-icon:hover {
     width: 27px;
     height: 25px;
 }
@@ -236,7 +245,7 @@ aside>div:last-child button:hover {
     margin-top: 20px;
 }
 
-.menu-closed .config-info{
+.menu-closed .config-info {
     margin-left: 15px;
     margin-top: 60px;
 }
@@ -249,6 +258,6 @@ aside>div:last-child button:hover {
 .menu-closed #open-btn {
     margin-left: 62px;
     transition: margin-left 0.2s ease-in-out;
-    
+
 }
 </style>
