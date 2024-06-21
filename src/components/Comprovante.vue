@@ -10,32 +10,32 @@
                 <div class="eminente">
                     <div class="form-row-eminente">
                         <label for="">Eminente</label>
-                        <span class="span-eminente">Victor Lima</span>
+                        <span class="span-eminente">{{ transacao.eminente }}</span>
                     </div>
                     <div class="form-row">
                         <div class="row-uni">
                             <label for="">CPF/CNPJ</label>
-                            <span class="span-cpfcnpj">00.000.000/0001-00</span>
+                            <span class="span-cpfcnpj">{{ formatarCPFCNPJ(transacao.cpfCnpj) }}</span>
                         </div>
                         <div class="row-uni">
                             <label for="">Horário da transação</label>
-                            <span class="span-horario">17:23:48</span>
+                            <span class="span-horario">{{ transacao.horario }}</span>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="row-uni">
                             <label for="">Agência</label>
-                            <span class="span-agencia">0001</span>
+                            <span class="span-agencia">{{ transacao.agencia }}</span>
 
                         </div>
                         <div class="row-uni">
                             <label for="">Conta Corrente</label>
-                            <span class="span-corrente">0000000-2</span>
+                            <span class="span-corrente">{{ transacao.contaCorrente }}</span>
 
                         </div>
                         <div class="row-uni">
                             <label for="">Data de Transação</label>
-                            <span class="span-transacao">29/05/2024</span>
+                            <span class="span-transacao">{{ transacao.dataTransacao }}</span>
 
                         </div>
                     </div>
@@ -45,35 +45,36 @@
                     <div class="form-row-destinatario">
                         <div>
                             <label for="">Destinatário</label>
-                            <span class="span-destinatario">José Lima</span>
+                            <span class="span-destinatario">{{ transacao.destinatario }}</span>
 
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="row-uni">
                             <label for="">CPF/CNPJ</label>
-                            <span class="span-destinatário-cpfcnpj">000.000.000.00</span>
+                            <span class="span-destinatário-cpfcnpj">{{ formatarCPFCNPJ(transacao.cpfCnpjDestinatario)
+                                }}</span>
 
                         </div>
                         <div class="row-uni">
                             <label for="">Chave de Segurança</label>
-                            <span class="span-destinatário-chave">E4298E77F94391238DJKAD</span>
+                            <span class="span-destinatário-chave">{{ transacao.chaveSeguranca }}</span>
 
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="row-uni">
                             <label for="">Agência</label>
-                            <span class="span-destinatário-agencia">0001</span>
+                            <span class="span-destinatário-agencia">{{ transacao.agenciaDestinatario }}</span>
 
                         </div>
                         <div class="row-uni">
                             <label for="">Conta corrente</label>
-                            <span class="span-destinatário-corrente">0000000-2</span>
+                            <span class="span-destinatário-corrente">{{ transacao.contaCorrenteDestinatario }}</span>
                         </div>
                         <div class="row-uni">
                             <label for="">valor</label>
-                            <span class="span-destinatário-valor">R$: 150,00</span>
+                            <span class="span-destinatário-valor">{{ formatarMoeda(transacao.valor) }}</span>
                         </div>
                     </div>
 
@@ -81,28 +82,74 @@
             </div>
 
             <div class="btn-comprovantes">
-                <button class="btn-baixar">baixar</button>
+                <button @click="baixarComprovante" class="btn-baixar">baixar</button>
                 <button @click="closeModal" class="btn-fechar">fechar</button>
             </div>
 
+        </div>
+    </div>
+    <div v-if="showModal" class="modal">
+        <div class="modal-content">
+            <p>Download realizado com sucesso!</p>
+            <button class="close" @click="fecharModal">Fechar</button>
         </div>
     </div>
 
 </template>
 
 <script>
+
 export default {
+    data() {
+        return {
+            showModal: false
+        };
+    },
     props: {
         open: {
             type: Boolean,
             required: true
-        }
+        },
+        transacao: {
+            type: Object,
+            required: true
+        },
+        
     },
     methods: {
         closeModal() {
             this.$emit('close');
+        },
+        baixarComprovante() {
+            this.showModal = true;
+        },
+        fecharModal() {
+            this.showModal = false;
+        },
+        formatarMoeda(valor) {
+            if (typeof valor === 'number') {
+                return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+            } else {
+                return valor;
+            }
+        },
+        formatarCPFCNPJ(cpfCnpj) {
+            
+            // Remove caracteres não numéricos
+            cpfCnpj = cpfCnpj.replace(/[^\d]/g, '');
+
+            // Formata CPF (xxx.xxx.xxx-xx) e CNPJ (xx.xxx.xxx/xxxx-xx)
+            if (cpfCnpj.length === 11) {
+                return cpfCnpj.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            } else if (cpfCnpj.length === 14) {
+                return cpfCnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+            }
+
+            // Retorna o valor original caso não seja CPF nem CNPJ válido
+            return cpfCnpj;
         }
-    }
+    },
+
 
 }
 </script>
@@ -277,6 +324,46 @@ span {
     color: #DCDCDC;
     border-radius: 4px;
     background-color: #06004F;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #06004F;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content p {
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.close {
+    width: 140px;
+    height: 44px;
+    margin-top: 10px;
+    border: 1.2px solid #06004F;
+    color: #06004F;
+    border-radius: 4px;
+    background-color: #fff;
     font-weight: bold;
     cursor: pointer;
 }
