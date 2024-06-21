@@ -7,7 +7,10 @@
             <section class="content-section">
                 <VueElementLoading :active="isLoading" spinner="spinner" color="#06004F" text="Carregando" duration="1"
                     size="60" />
+                <VueElementLoading :active="isLoadingTransacao" spinner="spinner" color="#06004F" text="Carregando"
+                    duration="1" size="60" />
                 <div class="content-info-section">
+
                     <div class="content-transacoes-info">
                         <div class="content-info-usuario">
                             <div class="content-saldo-usuario">
@@ -18,48 +21,75 @@
                                     src="../assets/img/img-detalhes/olhofechado.png" alt="olhofechado" />
                             </div>
                             <strong>
-                                <p v-if="olhoFechado">{{ formatarMoeda(valorSaldo) }}</p>
+                                <p v-if="olhoFechado">{{ formatarMoeda(this.valorSaldo) }}</p>
                                 <p v-else class="oculto">*********</p>
                             </strong>
                         </div>
                         <div class="content-info-transacao">
-                            <button class="btn-info-transacao">Dados da conta</button>
-                            <button class="btn-info-transacao">Valor</button>
-                            <button class="btn-info-transacao">Concluir</button>
+                            <button @click="etapaFormulario = 1" :class="{ 'active': etapaFormulario === 1 }"
+                                class="btn-info-transacao">Dados da conta</button>
+                            <button @click="etapaFormulario = 2" :class="{ 'active': etapaFormulario === 2 }"
+                                class="btn-info-transacao">Valor</button>
+                            <button @click="etapaFormulario = 3" :class="{ 'active': etapaFormulario === 3 }"
+                                class="btn-info-transacao">Concluir</button>
                         </div>
-                        <h3>Transação</h3>
-                        <p>Preencha os campos a seguir com os dados da conta que deseja transferir.</p>
+                        <div class="text-transacao">
+                            <p>Preencha os campos a seguir com os dados da conta que deseja transferir.</p>
+                        </div>
                         <div>
+                            <div>
+                                <span v-if="exibirErroInstituicao" id="erro-conta" class="msg-erro">Por favor, preencha
+                                    o campo instituição.</span>
+                                <div class="form-row" v-show="etapaFormulario >= 1">
+                                    <input v-model="instituicao" type="text" placeholder="Instituição"
+                                        @blur="validarInstituicao" />
+                                </div>
+                                <span v-if="exibirErroContaDestino" class="msg-erro" id="erro-conta">Por favor, preencha
+                                    a conta destino.</span>
+                                <div class="form-row" v-show="etapaFormulario >= 1">
+                                    <input v-model="nomeUsuario" type="text" placeholder="Conta Origem" readonly />
+                                    <input v-model="transacao.idContaOrigem" type="hidden" />
+                                    <input v-model="transacao.idContaDestino" type="text" placeholder="Conta destino"
+                                        @blur="validarContaDestino" />
+                                </div>
 
-                            <div class="form-row">
-                                <input type="text" placeholder="Instituição" />
-                            </div>
-                            <div class="form-row">
-                                <input v-model="transacao.idContaOrigem" type="text" placeholder="Conta Origem" />
-                                <input v-model="transacao.idContaDestino" type="text" placeholder="Conta destino" />
-                            </div>
-                            <div class="form-row">
-                                <input type="text" placeholder="Nome completo" />
-                            </div>
-                            <div class="form-row">
-                                <input type="text" placeholder="CPF/CNPJ" />
-                                <input type="text" placeholder="Tipo de conta" />
-                            </div>
-                            <p class="text-valor-transf">Valor da transferência</p>
-                            <div class="form-row">
-                                <input v-model="transacao.valor" class="input-valor" type="text" placeholder="Valor">
-                            </div>
-                            <div class="btn-transacao">
-                                <button @click="enviaTransacao" class="btn-concluir">concluir transferência</button>
-                                <button class="btn-voltar">voltar</button>
+                                <span v-if="exibirErroNomeCompleto" id="erro-conta" class="msg-erro">Por favor, preencha
+                                    o nome completo.</span>
+                                <div class="form-row" v-show="etapaFormulario >= 2">
+                                    <input v-model="nomeCompleto" @blur="validarNomeCompleto" type="text"
+                                        placeholder="Nome completo" />
+                                </div>
+                                <span v-if="exibirErroCpfCnpj" class="msg-erro lado-a-lado">Por favor, preencha o
+                                    CPF/CNPJ.</span>
+                                <span v-if="exibirErroTipoConta" class="msg-erro lado-a-lado">Por favor, preencha o tipo
+                                    de conta.</span>
+                                <div class="form-row" v-show="etapaFormulario >= 2">
+                                    <input v-model="cpfCnpjDestino" type="text" placeholder="CPF/CNPJ"
+                                        @blur="validarCpfCnpjDestino" />
+                                    <input v-model="tipoContaDestino" type="text" placeholder="Tipo de conta"
+                                        @blur="validarTipoContaDestino" />
+                                </div>
+                                <div class="form-row" v-show="etapaFormulario >= 2">
+                                    <p class="text-valor-transf">Valor da transferência</p>
+                                    <input v-model="transacao.valor" v-money="moneyConfig" class="input-valor"
+                                        type="text">
+                                </div>
 
+                                <div class="btn-transacao">
+                                    <button v-show="etapaFormulario < 3" @click="avancarFormulario(etapaFormulario + 1)"
+                                        class="btn-concluir" :disabled="saldoZerado">Avançar</button>
+                                    <button v-show="etapaFormulario === 3" @click="enviaTransacao"
+                                        class="btn-concluir">Concluir transferência</button>
+                                    <button v-show="etapaFormulario > 1" @click="voltarFormulario(etapaFormulario - 1)"
+                                        class="btn-voltar">Voltar</button>
+                                </div>
                             </div>
 
                         </div>
                     </div>
                 </div>
                 <div class="section-secundaria">
-                    <router-link to="/">
+                    <router-link to="/" class="no-underline">
                         <div class="botao-sair">
                             <button class="btn-sair"> Sair</button>
                             <img src="../assets/img/img-detalhes/frame12.png" alt="">
@@ -75,8 +105,8 @@
 
     </div>
 
-    <ModalTransacaoVue :open="isOpen" @close="isOpen = !isOpen" @ver-comprovante="abrirComprovante" />
-    <Comprovante :open="isComprovanteOpen" @close="isComprovanteOpen = true" />
+    <ModalTransacaoVue :open="isOpen" @close="isOpen = !isOpen" @ver-comprovante="abrirModalComprovante" />
+    <Comprovante :open="isModalComprovanteOpen"  :transacao="transacaoDetalhe" @close="isModalComprovanteOpen = false" />
 
 
 </template>
@@ -95,7 +125,17 @@ import Comprovante from '@/components/Comprovante.vue';
 export default {
     data() {
         return {
+            moneyConfig: {
+                decimal: ',',
+                thousands: '.',
+                prefix: 'R$ ',
+                precision: 0,
+                masked: true,
+            },
+            etapaFormulario: 1,
+
             isLoading: true,
+            isLoadingTransacao: false,
 
             olhoFechado: true,
 
@@ -107,16 +147,32 @@ export default {
                 require('@/assets/img/img-detalhes/banner2.png'),
                 require('@/assets/img/img-detalhes/banner3.png')
             ],
+
             transacao: {
                 idContaOrigem: '',
                 idContaDestino: '',
-                valor: ''
+                valor: 0,
             },
+            transacaoDetalhe: {},
+
             nomeUsuario: '',
             valorSaldo: 0,
             tipoConta: '',
             cpfCnpj: '',
-            isComprovanteOpen: false
+
+            isModalComprovanteOpen: false,
+            isComprovanteOpen: false,
+
+            instituicao: '',
+            instituicaoValida: false,
+            nomeCompleto: '',
+            cpfCnpjDestino: '',
+            tipoContaDestino: '',
+            exibirErroInstituicao: false,
+            exibirErroContaDestino: false,
+            exibirErroNomeCompleto: false,
+            exibirErroCpfCnpj: false,
+            exibirErroTipoConta: false,
         }
     },
     components: {
@@ -126,6 +182,9 @@ export default {
         imagemAtual() {
             return this.imagens[this.indiceAtual];
         },
+        saldoZerado() {
+            return this.valorSaldo === 0;
+        }
     },
     mounted() {
         setInterval(() => {
@@ -134,6 +193,9 @@ export default {
         setTimeout(() => {
             this.isLoading = false;
         }, 1200);
+        setTimeout(() => {
+            this.isLoadingTransacao = false;
+        }, 4000);
     },
     setup() {
         const isOpen = ref(false)
@@ -150,10 +212,11 @@ export default {
     created() {
         this.getContas();
         this.nomeUsuario = sessionStorage.getItem('nomeUsuario') || '';
+        this.nomeUsuario = this.capitalizarPrimeirasLetras(this.nomeUsuario);
         this.valorSaldo = Number(sessionStorage.getItem('valorSaldo')) || 0;
         this.tipoConta = sessionStorage.getItem('tipoConta') || '';
         this.cpfCnpj = sessionStorage.getItem('cpfCnpj') || '';
-
+        this.transacao.idContaOrigem = sessionStorage.getItem('idUsuario') || '';
     },
     methods: {
         formatarMoeda(valor) {
@@ -178,21 +241,106 @@ export default {
         },
         async enviaTransacao() {
             try {
-                await transacaoService.realizarTransacao(this.transacao);
-                this.openModal();
+                if (this.instituicaoValida) {
+                    this.isLoadingTransacao = true;
+                    let valorTransacao = parseFloat(this.transacao.valor.replace('R$ ', '').replace(/\./g, '').replace(',', '.'));
+
+                    let saldoAtual = Number(this.valorSaldo);
+                    if (isNaN(saldoAtual)) {
+                        throw new Error('Valor do saldo inválido');
+                    }
+                    await transacaoService.realizarTransacao({ ...this.transacao, valor: valorTransacao });
+                    saldoAtual -= valorTransacao;
+                    this.valorSaldo = saldoAtual;
+                    sessionStorage.setItem('valorSaldo', saldoAtual.toString());
+                    this.isLoadingTransacao = false;
+                    this.transacaoDetalhe = {
+                        eminente: this.nomeUsuario,
+                        cpfCnpj: this.cpfCnpj,
+                        horario: new Date().toLocaleTimeString(),
+                        agencia: '0001',
+                        contaCorrente: '123456-7',
+                        dataTransacao: new Date().toLocaleDateString(),
+                        destinatario: this.nomeCompleto,
+                        cpfCnpjDestinatario: this.cpfCnpjDestino,
+                        chaveSeguranca: 'XXXXX-XXXXX-XXXXX-XXXXX',
+                        agenciaDestinatario: '0001',
+                        contaCorrenteDestinatario: this.transacao.idContaDestino,
+                        valor: this.transacao.valor
+                    };
+                    this.openModal();
+                    return;
+                }
             } catch (error) {
                 console.error(error);
             }
         },
+        avancarFormulario(proximaEtapa) {
+            this.etapaFormulario = proximaEtapa;
+        },
+        voltarFormulario(etapaAnterior) {
+            this.etapaFormulario = etapaAnterior;
+        },
+        exibirSeccao(etapa) {
+            this.etapaFormulario = etapa;
+        },
+        capitalizarPrimeirasLetras(str) {
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        },
+        abrirModalComprovante() {
+            this.isModalComprovanteOpen = true;
+        },
+        validarInstituicao() {
+            this.instituicaoValida = this.instituicao.trim() !== '';
+            this.exibirErroInstituicao = !this.instituicaoValida;
+            if (this.exibirErroInstituicao) {
+                this.exibirErroContexibirErroInstituicaoaDestino = setTimeout(() => {
+                    this.exibirErroInstituicao = false;
+                }, 3000);
+            }
 
-    }
+        },
+        validarContaDestino() {
+            this.exibirErroContaDestino = this.transacao.idContaDestino.trim() === '';
+            if (this.exibirErroContaDestino) {
+                this.exibirErroContaDestino = setTimeout(() => {
+                    this.exibirErroContaDestino = false;
+                }, 3000);
+            }
+        },
+        validarNomeCompleto() {
+            this.exibirErroNomeCompleto = this.nomeCompleto.trim() === '';
+            if (this.exibirErroNomeCompleto) {
+                this.exibirErroNomeCompleto = setTimeout(() => {
+                    this.exibirErroNomeCompleto = false;
+                }, 3000);
+            }
+        },
+        validarCpfCnpjDestino() {
+            this.exibirErroCpfCnpj = this.cpfCnpjDestino.trim() === '';
+            if (this.exibirErroCpfCnpj) {
+                this.exibirErroCpfCnpj = setTimeout(() => {
+                    this.exibirErroCpfCnpj = false;
+                }, 3000);
+            }
+        },
+        validarTipoContaDestino() {
+            this.exibirErroTipoConta = this.tipoContaDestino.trim() === '';
+            if (this.exibirErroTipoConta) {
+                this.exibirErroTipoConta = setTimeout(() => {
+                    this.exibirErroTipoConta = false;
+                }, 3000);
+            }
+        },
+
+    },
 }
 </script>
 
 <style scoped>
 .container {
-    width: 1240px;
-    height: 585px;
+    width: 1208px;
+    height: auto;
 
 }
 
@@ -264,11 +412,12 @@ h3 {
 
 }
 
-.content-transacoes-info p,
-h4 {
+.content-transacoes-info p {
     margin: 2px;
     padding: 2px;
+    font-size: 16px;
 }
+
 
 .content-transacoes-info h4 {
     margin-top: 10px;
@@ -276,7 +425,7 @@ h4 {
 
 .section-banner {
     width: 190px;
-    margin-right: 60px;
+
 }
 
 /* formulário */
@@ -293,9 +442,11 @@ h4 {
     height: 30px;
 }
 
+
+
 .form-row input:last-child {
     margin-right: 0;
-    /* Remove o espaçamento do último input da linha */
+
 }
 
 .form-row input::placeholder {
@@ -318,7 +469,8 @@ h4 {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    margin-top: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .btn-transacao button {
@@ -326,6 +478,17 @@ h4 {
 }
 
 .btn-concluir {
+
+    height: 34px;
+    border: 1.2px solid #06004F;
+    color: #fff;
+    border-radius: 4px;
+    background-color: #06004F;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-avançar {
 
     height: 34px;
     border: 1.2px solid #06004F;
@@ -398,9 +561,39 @@ h4 {
 
 }
 
-.btn-info-transacao:focus {
+.btn-info-transacao.active {
     border-bottom: 2px solid #06004F;
     color: #06004F;
     font-weight: bold;
+}
+
+.no-underline {
+    text-decoration: none;
+}
+
+.text-transacao {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.msg-erro {
+    color: red;
+    font-size: 10px;
+    margin: 0;
+    padding: 0;
+
+
+}
+
+#erro-conta {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0;
+    padding: 0;
+}
+
+.lado-a-lado {
+    margin-left: 70px;
+
 }
 </style>
