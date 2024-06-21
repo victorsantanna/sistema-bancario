@@ -60,7 +60,7 @@
                         <div class="form-group">
                             <label for="senha2">Repita a senha</label>
                             <input v-model="usuario.senhaRepetida" @blur="validarSenhaRepetida"
-                                :class="{ 'input-error': erroSenhaRepetida, 'input-success': !erroSenhaRepetida && usuario.senha === usuario.senhaRepetida }"
+                                :class="{ 'input-error': erroSenhaRepetida, 'input-success': erroSenhaRepetida && usuario.senha === usuario.senhaRepetida }"
                                 type="password" id="senha2" name="senha2" placeholder="Repita sua senha de acesso">
                             <p v-if="erroSenhaRepetida" class="mensagem-erro">{{ erroSenhaRepetida }}</p>
                         </div>
@@ -74,6 +74,12 @@
                         </router-link>
                     </div>
                 </form>
+                <div v-if="showModal"  class="modal">   
+                    <div class="modal-content">
+                        <p>Cadastro efetuado com sucesso!</p>
+                        <button class="close" @click="closeModal">Acesse sua conta</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="content-img-cadastro">
@@ -107,6 +113,7 @@ export default {
 
 
             isLoading: true,
+            showModal: false,
 
             usuario: {
                 nomeCompleto: '',
@@ -114,7 +121,7 @@ export default {
                 email: '',
                 senha: '',
                 tipo: '',
-                senhaRepetida:'',
+                senhaRepetida: '',
             },
 
             contaUsuario: {
@@ -191,7 +198,7 @@ export default {
             this.validarTipoConta();
             this.validarEmail();
             this.validarSenha();
-            
+
 
             if (this.erroNomeCompleto || this.erroCpfCnpj || this.erroEmail || this.erroTipoConta || this.erroSenha) {
                 return;
@@ -207,6 +214,7 @@ export default {
                 console.log('Dados da conta a ser cadastrada:', this.contaUsuario);
                 await contaService.cadastrarConta(this.contaUsuario);
                 console.log('Conta cadastrada com sucesso')
+                this.showModal = true;
             } catch (error) {
                 console.error('Erro ao cadastrar usuário ou conta:', error.message);
                 if (error.response && error.response.data) {
@@ -221,23 +229,23 @@ export default {
         },
 
         validarCPF(cpf) {
-            // Função para validar CPF
-            // Implementação de validação de CPF aqui (exemplo simples)
-            return true; // Implementar lógica real de validação de CPF
+            return true;
         },
 
         validarCNPJ(cnpj) {
-            // Função para validar CNPJ
-            // Implementação de validação de CNPJ aqui (exemplo simples)
-            return true; // Implementar lógica real de validação de CNPJ
+            return true;
         },
+        closeModal() {
+            this.showModal = false;
+            this.$router.push({ name: 'login' })
+        }
     },
 
     mounted() {
-        
+
         setTimeout(() => {
             this.isLoading = false;
-        }, 1200); 
+        }, 1200);
     },
 
     computed: {
@@ -434,4 +442,52 @@ label {
 .input-error {
     border-bottom: 2.2px solid #F24949 !important;
 }
+
+
+.modal {
+    display: flex;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #06004F;
+    margin: auto;
+    padding: 50px;
+    border: 1px solid #06004F;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    border-radius: 10px;
+}
+.modal-content p {
+    color: #ffff;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+
+.close {
+    width: 240px;
+    height: 44px;
+    margin-top: 10px;
+    border: 1.2px solid #06004F;
+    color: #06004F;
+    border-radius: 4px;
+    background-color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+
 </style>
