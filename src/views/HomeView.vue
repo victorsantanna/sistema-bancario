@@ -48,10 +48,9 @@ export default {
     };
   },
   mounted() {
-    // Simular um atraso de carregamento para fins de demonstração
     setTimeout(() => {
       this.isLoading = false;
-    }, 1200); // Ajuste o tempo conforme necessário
+    }, 1200); 
   }
 }
 
@@ -67,7 +66,7 @@ export default {
   align-items: center;
   width: 1150px;
   height: 100vh;
-  margin-bottom: 10px;
+  margin: -50px 0 10px;
 }
 
 .conteudo-home {
@@ -77,7 +76,7 @@ export default {
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
-  margin-bottom: 10px;
+  margin: 0 0 10px 60px;
 }
 
 .imagem-home {
