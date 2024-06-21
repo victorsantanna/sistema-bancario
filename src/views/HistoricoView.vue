@@ -1,76 +1,87 @@
-    <template>
-        <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
-            :cpf-cnpj="cpfCnpj" />
-        <div class="container">
-            <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
-            <div class="conteudo-principal">
-                <div class="fixed-button">
-                    <BotaoSair class="btn-sair" />
-                </div>
-                <div class="historico">
-                    <h3>Historico de transação</h3>
-                    <div class="historico-data">
-                        <div class="historico-data-info">
-                            <p>Data de inicio</p>
-                            <input class="custom-date-input" type="date">
-                        </div>
-                        <div class="historico-data-info">
-                            <p>Data de fim</p>
-                            <input class="custom-date-input" type="date">
-                        </div>
-                        <div class="btn-buscar-historico">
-                            <img src="../assets/img/historico/lupa.png" alt="" class="btn-lupa">
-                            <button class="btn-buscar">Buscar</button>
-                        </div>
-
+        <template>
+            <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
+                :cpf-cnpj="cpfCnpj" />
+            <div class="container">
+                <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
+                <div class="conteudo-principal">
+                    <div class="fixed-button">
+                        <BotaoSair class="btn-sair" />
                     </div>
-                </div>
-                <div class="conteudo-historico">
+                    <div class="historico">
+                        <h3>Historico de transação</h3>
+                        <div class="historico-data">
+                            <div class="historico-data-info">
+                                <p>Data de inicio</p>
+                                <input class="custom-date-input" type="date">
+                            </div>
+                            <div class="historico-data-info">
+                                <p>Data de fim</p>
+                                <input class="custom-date-input" type="date">
+                            </div>
+                            <div class="btn-buscar-historico">
+                                <img src="../assets/img/historico/lupa.png" alt="" class="btn-lupa">
+                                <button class="btn-buscar">Buscar</button>
+                            </div>
 
-                    <div class="conteudo-historico-info">
-                        <div class="historico-group">
-                            <img src="../assets/img/historico/deposito.png" alt="">
-                        </div>
-                        <div class="historico-group">
-                            <h3>Transferência</h3>
-                            <p>R$:150,00</p>
-                            <p>Lucas Silva</p>
-                        </div>
-                        <div class="historico-group">
-                            <h3>CPF/CNPJ</h3>
-                            <p>***.123.774-**</p>
-                        </div>
-                        <div class="historico-group">
-                            <h3>Agência</h3>
-                            <p>1</p>
-                        </div>
-                        <div class="historico-group">
-                            <h3>Número da conta</h3>
-                            <p>889963-1</p>
-                        </div>
-                        <div class="historico-group">
-                            <h3>Horário</h3>
-                            <p>17h23</p>
-                        </div>
-                        <div class="historico-group">
-                            <img class="historico-boleto-img" src="../assets/img/historico/comprovante.png"
-                                alt="boleto">
                         </div>
                     </div>
+                    <div class="scroll-box">
+                        <div v-if="transacoes.length > 0" class="conteudo-historico">
+                            <div v-for="(transacao, index) in transacoes" :key="index">
+                                <p>{{ formatarData(transacao.data) }}</p>
+                                <div class="conteudo-historico-info">
+                                    <div class="historico-group">
+                                        <img :src="iconeTransacao(transacao.tipo)" alt="">
+                                    </div>
+                                    <div class="historico-group">
+                                        <h3>{{ tipoTransacao(transacao.tipo) }}</h3>
+                                        <p>R$ {{ transacao.valor.toFixed(2) }}</p>
+                                        <p>{{ transacao.contaOrigem.usuario.nomeCompleto }}</p>
+                                    </div>
+
+                                    <div class="historico-group">
+                                        <h3>CPF/CNPJ</h3>
+                                        <p>{{ transacao.contaOrigem.usuario.cpfCnpj }}</p>
+                                    </div>
+                                    <div class="historico-group">
+                                        <h3>Agência</h3>
+                                        <p>{{ transacao.contaOrigem.agencia }}</p>
+                                    </div>
+                                    <div class="historico-group">
+                                        <h3>Número da conta</h3>
+                                        <p>{{ transacao.contaOrigem.conta }}</p>
+                                    </div>
+                                    <div class="historico-group">
+                                        <h3>Horário</h3>
+                                        <p>{{ formatarHorario(transacao.data) }}</p>
+                                    </div>
+                                    <div class="historico-group">
+                                        <img  class="historico-boleto-img"
+                                            src="../assets/img/historico/comprovante.png" alt="boleto">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div v-else>
+                            <p>Nenhum dado encontrado.</p>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
-        </div>
-
-    </template>
+        </template>
 
 <script>
 import transacoesService from '@/services/transacoesService.js';
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
 import BotaoSair from '@/components/BotaoSair.vue';
+import Comprovante from '@/components/Comprovante.vue';
 export default {
     components: {
-        NavbarTransacao, MenuLateral, BotaoSair,
+        NavbarTransacao, MenuLateral, BotaoSair, Comprovante,
     },
     data() {
         return {
@@ -84,22 +95,83 @@ export default {
                 conta: '',
                 id: '',
                 saldo: '',
-            }
+            },
+            transacoes: [],
+            dataInicio: '',
+            dataFim: '',
 
         }
     },
     methods: {
-        async transacaoPorid() {
+        async getTransacoesCompletaPorId() {
             try {
-                const response = await transacoesService.obterTransacaoPorId(this.buscarPorId);
-                console.log(response);
+                const idUsuario = sessionStorage.getItem('idUsuario');
+                const response = await transacoesService.obterTransacoesCompleta(idUsuario);
+                console.log('Os dados recebidos: ', response);
+                this.transacoes = response.content;
                 return response
             } catch (error) {
+                console.error('Erro ao obter transações completas:', error);
+            }
+        },
+        // async getTransacoesPorId() {
+        //     try {
+        //         const idUsuario = sessionStorage.getItem('idUsuario');
+        //         const response = await transacoesService.obterTransacaoPorId(idUsuario);
+        //         console.log("Dados da transação recebidos:", response);
+
+        //         // Verificar se a resposta é um array ou um objeto único
+        //         if (response && Array.isArray(response)) {
+
+        //             this.transactions = response;
+        //         } else if (response) {
+        //             console.log("A resposta é um objeto:", response);
+        //             this.transactions = [response]; // Colocar o objeto único dentro de um array
+        //         } else {
+        //             console.error('Dados da transação não encontrados ou são inválidos');
+        //         }
+
+
+        //         return response
+        //     } catch (error) {
+        //         console.error(error);
+        //     }
+        // },
+
+        formatarData(data) {
+            const dataObj = new Date(data);
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            return dataObj.toLocaleDateString('pt-BR', options);
+        },
+        formatarHorario(data) {
+            const dataObj = new Date(data);
+            return `${dataObj.getHours()}h${dataObj.getMinutes()}`;
+        },
+        tipoTransacao(tipo) {
+            return tipo === 'TRANSFERENCIA' ? 'Transferência' : 'Deposito';
+        },
+        iconeTransacao(tipo) {
+            switch (tipo) {
+                case 'TRANSFERENCIA':
+                    return require('../assets/img/historico/retirada.png');
+                case 'SAQUE':
+                    return require('../assets/img/historico/retirada.png');
+                case 'DEPOSITO':
+                    return require('../assets/img/historico/deposito.png');
 
             }
-        }
+        },
+        async buscarHistorico() {
+            // Implementar a lógica para buscar histórico baseado nas datas dataInicio e dataFim
+            console.log('Buscar histórico com data de início:', this.dataInicio, 'e data de fim:', this.dataFim);
+            // Exemplo de como buscar com as datas:
+            // const response = await transacoesService.buscarHistorico(this.dataInicio, this.dataFim);
+            // Atualizar this.transactions com o resultado da busca
+        },
     },
     created() {
+        this.getTransacoesCompletaPorId();
+        // this.getTransacoesPorId();
         this.nomeUsuario = sessionStorage.getItem('nomeUsuario') || '';
         this.valorSaldo = Number(sessionStorage.getItem('valorSaldo')) || 0;
         this.tipoConta = sessionStorage.getItem('tipoConta') || '';
@@ -112,8 +184,8 @@ export default {
 .container {
     display: flex;
     font-family: 'Montserrat', sans-serif;
-    width: 1240px;
-    height: 585px;
+    width: 1208px;
+    height: auto;
 }
 
 .conteudo-principal {
@@ -123,7 +195,7 @@ export default {
     margin: 11px;
     margin-left: 80px;
     width: 67%;
-    height: 290px;
+    height: 460px;
 
 }
 
@@ -131,14 +203,13 @@ export default {
     position: fixed;
     top: 115px;
     right: 10px;
-    z-index: 1000; /* Garante que o botão esteja acima de outros conteúdos */
+    z-index: 1000;
+    /* Garante que o botão esteja acima de outros conteúdos */
 }
 
 .btn-sair {
     display: flex;
     justify-content: flex-end;
-
-
 
 }
 
@@ -198,7 +269,7 @@ export default {
 }
 
 .historico-group p {
-    font-size: 15px;
+    font-size: 13px;
     white-space: nowrap;
     margin: 0;
     padding: auto;
@@ -248,6 +319,17 @@ export default {
 
 .historico-boleto-img {
     cursor: pointer;
+}
+
+.scroll-box {
+    width: 100%;
+    max-height: 800px;
+    overflow-y: auto;
+    border: none;
+    padding: 10px;
+    background-color: #fcfcfc;
+
+
 }
 </style>
 
