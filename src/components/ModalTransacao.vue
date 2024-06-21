@@ -29,6 +29,7 @@ export default {
         type: Boolean,
         required: true
       },  
+    },
     setup(props, { emit }) {
       const closeModal = () => {
         emit('close', false);
@@ -42,7 +43,6 @@ export default {
         verComprovante
       }
     }
-  }
 }
 </script>
 
