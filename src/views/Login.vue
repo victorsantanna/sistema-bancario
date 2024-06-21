@@ -90,7 +90,7 @@ export default {
             setTimeout(() => {
                 this.erroLogin = '';
             }, 5000);
-        }
+        },
     },
     computed: {
         cpfCnpjMask() {
@@ -222,10 +222,12 @@ form {
     height: 28px;
     outline: none;
     font-size: 14px;
+    background-color: transparent;
 }
 
 .grupo-formulario input:focus {
     border-bottom: 3px solid #06004F;
+    background: none;
 }
 
 input[type="checkbox"] {
