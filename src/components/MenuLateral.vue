@@ -12,7 +12,7 @@
                     <p v-if="isMenuOpen">Menu principal</p>
                 </div>
             </router-link>
-            <router-link to="transacao" class="no-underline">
+            <router-link to="transacao" class="no-underline" v-if="tipoConta !== 'LOJISTA'">
                 <div class="aside-content">
                     <img class="aside-icon" src="../assets/img/img-detalhes/frame6.png" alt="">
                     <p v-if="isMenuOpen">Realizar transação</p>
