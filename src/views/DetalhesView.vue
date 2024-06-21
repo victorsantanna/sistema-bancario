@@ -9,7 +9,7 @@
                     text="Carregando" duration="1" size="60" />
                 <div class="content-info-section">
                     <div class="content-info-usuario">
-                        <h3>Bem-vindo(a), {{ }}</h3>
+                        <h3>Bem-vindo(a), {{ capitalizarPrimeirasLetras(nomeUsuario) }}</h3>
                         <div class="content-saldo-usuario">
                             <p>Saldo em conta</p>
                             <img v-if="olhoFechado" @click="toggleOlho" class="img-olho"
@@ -25,48 +25,24 @@
                     <div class="content-transacoes-info">
                         <h3>Transações recentes</h3>
                         <div>
-                            <div class="scroll-box">
-                                <!-- <div v-for="(transaction, index) in transactions" :key="index"
-                                    class="content-transacoes-usuario">
+                            <div class="scroll-box" v-if="transacoesCompleta.length > 0">
+                                <div class="content-transacoes-usuario-dois"
+                                    v-for="(transacao, index) in transacoesCompleta" :key="index">
                                     <div class="content-transacoes-info">
-                                        <h4>Transferência recebida</h4>
-                                        <p>R$: {{ transaction.valor }}</p>
-                                        <p>{{ transaction.contaDestino.usuario.nomeCompleto }}</p>
+                                        <h4>{{ tipoTransacao(transacao.tipo) }}</h4>
+                                        <p class="text-tipo-transacao">{{ formatarMoeda(transacao.valor) }}</p>
+                                        <p> {{ capitalizarPrimeirasLetras(transacao.contaOrigem.usuario.nomeCompleto)
+                                            }}</p>
                                     </div>
                                     <div>
-                                        <img src="../assets/img/img-detalhes/frame3.png" alt="">
-                                    </div>
-                                </div> -->
-                                <div class="content-transacoes-usuario">
-                                    <div class="content-transacoes-info">
-                                        <h4>Transferência realizada</h4>
-                                        <p>R$: 140,00</p>
-                                        <p>Lucas Silva</p>
-                                    </div>
-                                    <div>
-                                        <img src="../assets/img/img-detalhes/frame4.png" alt="">
+                                        <img v-if="transacao.tipo === 'DEPOSITO'"
+                                            src="../assets/img/img-detalhes/frame3.png" alt="">
+                                        <img v-else src="../assets/img/img-detalhes/frame4.png" alt="">
                                     </div>
                                 </div>
-                                <div class="content-transacoes-usuario">
-                                    <div class="content-transacoes-info">
-                                        <h4>Transferência realizada</h4>
-                                        <p>R$: 140,00</p>
-                                        <p>Lucas Silva</p>
-                                    </div>
-                                    <div>
-                                        <img src="../assets/img/img-detalhes/frame4.png" alt="">
-                                    </div>
-                                </div>
-                                <div class="content-transacoes-usuario">
-                                    <div class="content-transacoes-info">
-                                        <h4>Transferência realizada</h4>
-                                        <p>R$: 140,00</p>
-                                        <p>Lucas Silva</p>
-                                    </div>
-                                    <div>
-                                        <img src="../assets/img/img-detalhes/frame4.png" alt="">
-                                    </div>
-                                </div>
+                            </div>
+                            <div v-else>
+                                <p>Nenhuma transação encontrada.</p>
                             </div>
                         </div>
                     </div>
@@ -79,10 +55,11 @@
                         <img class="section-banner" :src="imagemAtual" alt="">
                     </div>
                 </div>
+
             </section>
 
         </div>
-        <ModalBemVindo :open="exibirModalBemVindo" @close="handleClose"
+        <ModalBemVindo :open="exibirModalBemVindo" @close="fecharModal"
             :nomeUsuario="capitalizarPrimeirasLetras(nomeUsuario)" />
 
     </div>
@@ -94,8 +71,10 @@
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import VueElementLoading from 'vue-element-loading';
+
 import contasService from '@/services/contasService.js';
 import transacoesService from '@/services/transacoesService.js';
+
 import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
 import BotaoSair from '@/components/BotaoSair.vue';
@@ -107,6 +86,8 @@ export default {
     },
     data() {
         return {
+            idUsuario: null,
+
             exibirModalBemVindo: false,
 
             isLoading: true,
@@ -124,40 +105,8 @@ export default {
             valorSaldo: 0,
             tipoConta: '',
             cpfCnpj: '',
-            // transactions: [
-            //     {
-            //         contaDestino: {
-            //             agencia: "",
-            //             conta: "",
-            //             id: '',
-            //             saldo: '',
-            //             usuario: {
-            //                 cpfCnpj: '',
-            //                 email: '',
-            //                 id: '',
-            //                 nomeCompleto: '',
-            //                 tipo: '',
-            //             }
-            //         },
-            //         contaOrigem: {
-            //             agencia: '',
-            //             conta: '',
-            //             id: '',
-            //             saldo: '',
-            //             usuario: {
-            //                 cpfCnpj: '',
-            //                 email: '',
-            //                 id: '',
-            //                 nomeCompleto: '',
-            //                 tipo: '',
-            //             }
-            //         },
-            //         data: '',
-            //         id: '',
-            //         tipo: '',
-            //         valor: '',
-            //     },
-            // ],
+            transactions: [],
+            transacoesCompleta: [],
 
         }
     },
@@ -175,17 +124,22 @@ export default {
         }, 1200);
         const modalExibido = sessionStorage.getItem('modalBemVindoExibido');
         if (!modalExibido) {
-            this.exibirModalBemVindo = true; 
-            sessionStorage.setItem('modalBemVindoExibido', 'true'); 
+            this.exibirModalBemVindo = true;
+            sessionStorage.setItem('modalBemVindoExibido', 'true');
         };
     },
     created() {
+        this.idUsuario = sessionStorage.getItem('idUsuario');
         this.getContaPorId();
-        this.getTransacoesPorId();
+        // this.getTransacoesPorId();
+        this.getTransacoesCompletaPorId();
     },
     methods: {
-        handleClose() {
-            console.log('Modal close event received'); 
+        tipoTransacao(tipo) {
+            return tipo === 'TRANSFERENCIA' ? 'Transferência' : 'Deposito';
+        },
+        fecharModal() {
+            console.log('Modal close event received');
             this.exibirModalBemVindo = false;
         },
         capitalizarPrimeirasLetras(str) {
@@ -194,6 +148,7 @@ export default {
         toggleOlho() {
             this.olhoFechado = !this.olhoFechado;
         },
+
         async getTransacoes() {
             try {
                 const response = await transacoesService.obterTransacoes();
@@ -207,9 +162,8 @@ export default {
         async getContaPorId() {
             try {
                 const idUsuario = sessionStorage.getItem('idUsuario');
-                console.log('Id do usuário ' + idUsuario)
+
                 const response = await contasService.obterContasPorId(idUsuario);
-                console.log(response);
 
                 sessionStorage.setItem('nomeUsuario', response.usuario.nomeCompleto);
                 sessionStorage.setItem('valorSaldo', response.saldo);
@@ -228,15 +182,44 @@ export default {
                 console.error(error);
             }
         },
-        async getTransacoesPorId() {
+
+        // async getTransacoesPorId() {
+        //     try {
+        //         const idUsuario = sessionStorage.getItem('idUsuario');
+        //         const response = await transacoesService.obterTransacaoPorId(idUsuario);
+        //         console.log("Dados da transação recebidos:", response);
+
+        //         // Verificar se a resposta é um array ou um objeto único
+        //         if (response && Array.isArray(response)) {
+
+        //             this.transactions = response;
+        //         } else if (response) {
+        //             console.log("A resposta é um objeto:", response);
+        //             this.transactions = [response]; // Colocar o objeto único dentro de um array
+        //         } else {
+        //             console.error('Dados da transação não encontrados ou são inválidos');
+        //         }
+
+
+        //         return response
+        //     } catch (error) {
+        //         console.error(error);
+        //     }
+        // },
+        async getTransacoesCompletaPorId() {
             try {
                 const idUsuario = sessionStorage.getItem('idUsuario');
-                const response = await transacoesService.obterTransacaoPorId(idUsuario);
-                console.log(response);
-
+                const response = await transacoesService.obterTransacoesCompleta(idUsuario);
+                console.log('Os dados recebidos: ', response);
+                this.transacoesCompleta = response.content;
+                // if (response && response.content && Array.isArray(response.content)) {
+                //     this.transacoesCompleta = response.content; // Atribui o array de transações
+                // } else {
+                //     console.error('A resposta da API não é um array válido:', response);
+                // }
                 return response
             } catch (error) {
-                console.error(error);
+                console.error('Erro ao obter transações completas:', error);
             }
         },
         formatarMoeda(valor) {
@@ -290,6 +273,8 @@ export default {
     margin-left: 10px;
 }
 
+
+
 .content-info-usuario {
     display: flex;
     flex-direction: column;
@@ -303,6 +288,7 @@ export default {
 h3 {
     margin: 0;
     padding: 0;
+    
 }
 
 .content-info-usuario h3 {
@@ -319,14 +305,30 @@ h3 {
 
 }
 
+.content-transacoes-usuario-dois {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-right: 5px solid #E6E6ED;
+
+
+}
+
+.content-transacoes-usuario-dois img {
+    margin-top: 20px;
+    margin-left: 90px;
+}
+
 .content-transacoes-usuario img {
     margin-left: 90px;
-    padding: 15px;
+    margin-top: 20px;
 }
 
 .content-transacoes-info {
     display: flex;
     flex-direction: column;
+    font-size: 16px;
 
 
 }
@@ -335,10 +337,13 @@ h3 {
 h4 {
     margin: 0;
     padding: 0;
+    font-size: 16px;
 }
+
 
 .content-transacoes-info h4 {
     margin-top: 30px;
+    font-size: 13px;
 }
 
 .section-banner {
@@ -347,10 +352,10 @@ h4 {
 }
 
 .scroll-box {
-    width: 100%;
+    width: 400px;
     height: 300px;
     /* Defina a altura do box para ativar a rolagem */
-    padding: 10px;
+    padding: 0;
     border: 1px solid #000;
     border: none;
     background-color: #fff;
