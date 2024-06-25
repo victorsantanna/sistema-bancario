@@ -1,386 +1,272 @@
 <template>
     <div class="container">
-        <nav class="navbar-container">
-            <div>
-                <router-link to="/">
-                    <img class="navbar-logo" src="../assets/img/img-home/logo.png" alt="logo stefbank">
-
-                </router-link>
-            </div>
-            <div class="navbar-info">
-                <div class="navbar-info-usuario">
-                    <h4>Lucas Silva</h4>
-                    <p>***26320</p>
-                </div>
-                <div>
-                    <button type="button" class="navbar-botao">LOJISTA</button>
-                </div>
-            </div>
-        </nav>
-        <div class="body-content">
-
-            <aside>
-                <span id="open-btn">
-                    <img src="../assets/img/img-detalhes/expandimenu.png" alt="menu">
-                </span>
-                <div class="aside-info">
-                    <div class="aside-content">
-                        <img class="aside-icon" src="../assets/img/img-detalhes/frame5.png" alt="">
-                        <p>Menu principal</p>
-                    </div>
-                    <router-link to="transacao">
-                    <div class="aside-content">
-                            <img class="aside-icon" src="../assets/img/img-detalhes/frame6.png" alt="">
-                            <p>Realizar transação</p>
-                        </div>
-                    </router-link>
-                    <div class="aside-content">
-                        <img class="aside-icon" src="../assets/img/img-detalhes/frame7.png" alt="">
-                        <p>Histórico</p>
-                    </div>
-                    <div class="aside-content">
-                        <img  class="aside-icon" src="../assets/img/img-detalhes/frame8.png" alt="">
-                        <p>Cartões</p>
-                    </div>
-                    <div class="aside-content">
-                        <img class="aside-icon" src="../assets/img/img-detalhes/frame9.png" alt="">
-                        <p>Investimentos</p>
-                    </div>
-                </div>
-                <div class="aside-config">
-                    <div class="config-info">
-                        <img class="aside-icon" src="../assets/img/img-detalhes/frame10.png" alt="">
-                        <p>Configurações</p>
-                    </div>
-                    <div class="config-usuario">
-                        <div>
-                            <img class="config-usuario-img" src="../assets/img/img-detalhes/Ellipse1.png" alt="">
-                        </div>
-                        <div class="config-usuario-info">
-                            <p>Lucas Silva</p>
-                            <button>LOJISTA</button>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-    
+        <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
+            :cpf-cnpj="cpfCnpj" />
+        <div class="conteudo-corpo">
+            <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
             <section class="content-section">
+                <VueElementLoading :active="isLoading" :is-full-screen=true spinner="spinner" color="#06004F"
+                    text="Carregando" duration="1" size="60" />
                 <div class="content-info-section">
                     <div class="content-info-usuario">
-                        <h3>Bem-vindo, Lucas Silva</h3>
+                        <h3>Bem-vindo(a), {{ capitalizarPrimeirasLetras(nomeUsuario) }}</h3>
                         <div class="content-saldo-usuario">
-                           <p>Saldo em conta</p>
-                           <img src="../assets/img/img-detalhes/frame2.png" alt="olho">
+                            <p>Saldo em conta</p>
+                            <img v-if="olhoFechado" @click="toggleOlho" class="img-olho"
+                                src="../assets/img/img-detalhes/frame2.png" alt="olho" />
+                            <img v-else @click="toggleOlho" class="img-olho"
+                                src="../assets/img/img-detalhes/olhofechado.png" alt="olhofechado" />
                         </div>
                         <strong>
-                            <p>R$:1400,45</p>
+                            <p v-if="olhoFechado">{{ formatarMoeda(valorSaldo) }}</p>
+                            <p v-else class="oculto">*********</p>
                         </strong>
                     </div>
                     <div class="content-transacoes-info">
                         <h3>Transações recentes</h3>
                         <div>
-                            <div class="scroll-box">
-
-                                <div class="content-transacoes-usuario">
+                            <div class="scroll-box" v-if="transacoesCompleta.length > 0">
+                                <div class="content-transacoes-usuario-dois"
+                                    v-for="(transacao, index) in transacoesCompleta" :key="index">
                                     <div class="content-transacoes-info">
-                                        <h4>Transferência recebida</h4>
-                                        <p>R$: 160,00</p>
-                                        <p>Lucas Silva</p>
+                                        <h4>{{ tipoTransacao(transacao.tipo) }}</h4>
+                                        <p class="text-tipo-transacao">{{ formatarMoeda(transacao.valor) }}</p>
+                                        <p> {{ capitalizarPrimeirasLetras(transacao.contaDestino.usuario.nomeCompleto)
+                                            }}</p>
                                     </div>
                                     <div>
-                                        <img src="../assets/img/img-detalhes/frame3.png" alt="">
-                                    </div>
-                                </div>
-                                <div  class="content-transacoes-usuario">
-                                    <div class="content-transacoes-info">
-                                        <h4>Transferência realizada</h4>
-                                        <p>R$: 140,00</p>
-                                        <p>Lucas Silva</p>
-                                    </div>
-                                    <div>
-                                        <img src="../assets/img/img-detalhes/frame4.png" alt="">
-                                    </div>
-                                </div>
-                                <div  class="content-transacoes-usuario">
-                                    <div class="content-transacoes-info">
-                                        <h4>Transferência realizada</h4>
-                                        <p>R$: 140,00</p>
-                                        <p>Lucas Silva</p>
-                                    </div>
-                                    <div>
-                                        <img src="../assets/img/img-detalhes/frame4.png" alt="">
-                                    </div>
-                                </div>
-                                <div  class="content-transacoes-usuario">
-                                    <div class="content-transacoes-info">
-                                        <h4>Transferência realizada</h4>
-                                        <p>R$: 140,00</p>
-                                        <p>Lucas Silva</p>
-                                    </div>
-                                    <div>
-                                        <img src="../assets/img/img-detalhes/frame4.png" alt="">
+                                        <img v-if="transacao.tipo === 'DEPOSITO'"
+                                            src="../assets/img/img-detalhes/frame3.png" alt="">
+                                        <img v-else src="../assets/img/img-detalhes/frame4.png" alt="">
                                     </div>
                                 </div>
                             </div>
-                         </div>
+                            <div v-else>
+                                <p>Nenhuma transação encontrada.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="section-secundaria">
-                    <router-link to="/">
-                        <div class="botao-sair">
-                            <button class="btn-sair"> Sair</button>
-                            <img src="../assets/img/img-detalhes/frame12.png" alt="">
-                        </div>
 
-                    </router-link>
+                    <BotaoSair class="btn-sair" />
+
                     <div>
-                        <img class="section-banner" src="../assets/img/img-detalhes/banner1.png" alt="">
+                        <img class="section-banner" :src="imagemAtual" alt="">
                     </div>
                 </div>
+
             </section>
+
         </div>
+        <ModalBemVindo :open="exibirModalBemVindo" @close="fecharModal"
+            :nomeUsuario="capitalizarPrimeirasLetras(nomeUsuario)" />
 
     </div>
 
-    
+
 </template>
 
 <script>
+import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
-import contasService from '@/services/contas.js';
-import transacoesService from '@/services/transacoes.js';
+import VueElementLoading from 'vue-element-loading';
 
-export default{
-  created(){
-    this.getContas();
-    this.getTransacoes();
-  },
-  methods:{
-     async getContas(){
-       try {
-        const response = await contasService.obterContas();
-        console.log(response);
-        
-        return response
-       } catch (error) {
-        console.error(error);
-       }
+import contasService from '@/services/contasService.js';
+import transacoesService from '@/services/transacoesService.js';
+
+import NavbarTransacao from '@/components/NavbarTransacao.vue';
+import MenuLateral from '@/components/MenuLateral.vue';
+import BotaoSair from '@/components/BotaoSair.vue';
+import ModalBemVindo from '@/components/ModalBemVindo.vue';
+
+export default {
+    components: {
+        NavbarTransacao, MenuLateral, BotaoSair, ModalBemVindo, VueElementLoading,
     },
-    async getTransacoes(){
-         try {
-          const response = await transacoesService.obterTransacoes();
-          console.log(response);
-          
-          return response
-         } catch (error) {
-          console.error(error);
-         }
-      },
-    async getContaPorId(){
-         try {
-          const response = await contasService.obterContasPorId();
-          console.log(response);
-          
-          return response
-         } catch (error) {
-          console.error(error);
-         }
-      },
+    data() {
+        return {
+            idUsuario: null,
 
-  },
+            exibirModalBemVindo: false,
+
+            isLoading: true,
+
+            olhoFechado: true,
+
+            indiceAtual: 0,
+            imagens: [
+                require('@/assets/img/img-detalhes/banner1.png'),
+                require('@/assets/img/img-detalhes/banner2.png'),
+                require('@/assets/img/img-detalhes/banner3.png')
+            ],
+
+            nomeUsuario: '',
+            valorSaldo: 0,
+            tipoConta: '',
+            cpfCnpj: '',
+            transactions: [],
+            transacoesCompleta: [],
+
+        }
+    },
+    computed: {
+        imagemAtual() {
+            return this.imagens[this.indiceAtual];
+        },
+    },
+    mounted() {
+        setInterval(() => {
+            this.indiceAtual = (this.indiceAtual + 1) % this.imagens.length;
+        }, 5000);
+        setTimeout(() => {
+            this.isLoading = false;
+        }, 1200);
+        const modalExibido = sessionStorage.getItem('modalBemVindoExibido');
+        if (!modalExibido) {
+            this.exibirModalBemVindo = true;
+            sessionStorage.setItem('modalBemVindoExibido', 'true');
+        };
+    },
+    created() {
+        this.idUsuario = sessionStorage.getItem('idUsuario');
+        this.getContaPorId();
+        // this.getTransacoesPorId();
+        this.getTransacoesCompletaPorId();
+    },
+    methods: {
+        tipoTransacao(tipo) {
+            return tipo === 'TRANSFERENCIA' ? 'Transferência' : 'Deposito';
+        },
+        fecharModal() {
+            console.log('Modal close event received');
+            this.exibirModalBemVindo = false;
+        },
+        capitalizarPrimeirasLetras(str) {
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        },
+        toggleOlho() {
+            this.olhoFechado = !this.olhoFechado;
+        },
+
+        async getTransacoes() {
+            try {
+                const response = await transacoesService.obterTransacoes();
+                console.log(response);
+
+                return response
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async getContaPorId() {
+            try {
+                const idUsuario = sessionStorage.getItem('idUsuario');
+
+                const response = await contasService.obterContasPorId(idUsuario);
+
+                sessionStorage.setItem('nomeUsuario', response.usuario.nomeCompleto);
+                sessionStorage.setItem('valorSaldo', response.saldo);
+                sessionStorage.setItem('tipoConta', response.usuario.tipo);
+                sessionStorage.setItem('cpfCnpj', response.usuario.cpfCnpj);
+
+
+                this.nomeUsuario = response.usuario.nomeCompleto;
+                this.valorSaldo = response.saldo;
+                this.tipoConta = response.usuario.tipo;
+                this.cpfCnpj = response.usuario.cpfCnpj;
+
+
+                return response
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async getTransacoesCompletaPorId() {
+            try {
+                const idUsuario = sessionStorage.getItem('idUsuario');
+                const response = await transacoesService.obterTransacoesCompleta(idUsuario);
+                console.log('Os dados recebidos: ', response);
+                this.transacoesCompleta = response.content;
+                return response
+            } catch (error) {
+                console.error('Erro ao obter transações completas:', error);
+            }
+        },
+        formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+        },
+        formatarCpfCnpj(cpfCnpj) {
+            if (cpfCnpj && cpfCnpj.length === 11) {
+                return cpfCnpj.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "***.$2.$3-**");
+            } else if (cpfCnpj && cpfCnpj.length === 11) {
+                return cpfCnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "**.$2.$3/****");
+            } else {
+                return cpfCnpj;
+            }
+        },
+
+    },
+
 }
 
 </script>
 
 <style scoped>
+.container {
+    width: 1240px;
+    height: 585px;
 
-.container{
-  width: 1240px;
-  height: 585px;
- 
 }
-.body-content{
+
+.conteudo-corpo {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-nav{
-    font-family: 'Montserrat', sans-serif;
-    width: 1248px;
-    height: 80px;
-    background-color: #06004F;
+.content-section {
     display: flex;
     flex-direction: row;
-    justify-content:space-between;
-    align-items: center;
+    justify-content: space-around;
 }
 
-.navbar-logo{
-    margin-left: 60px;
-    width: 120px;
-}
-
-.navbar-info{
-    color: #E6E6ED;
-    display: flex;
-    flex-direction: row;
-    justify-content:space-between;
-    align-items: center;
-    margin: 50px;
-}
-.navbar-info-usuario{
-    margin: 20px;
-    
-}
-
-.navbar-info-usuario h4{
-    font-size: 16px;
-}
-
-.navbar-info-usuario p{
-    text-indent: 33px;
-    font-size: 14px;
-}
-
-.navbar-info-usuario h4,
-.navbar-info-usuario p {
-  margin: 0;
-  padding: 0;
-}
-
-.navbar-botao{
-    background-color: #1D1393;
-    border: .5px solid #3b348b;
-    color: #E6E6ED;
-    padding: 7px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-aside{
-    width: 200px;
-    background-color: #05003F;
-    padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    height: 475px;
-    
-}
-#open-btn{
-    margin-left: 202px;
-}
-
-.aside-content{
-    margin-bottom: 30px;
-    cursor: pointer;
-}
-.aside-icon{
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
-}
-
-.aside-content{
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-}
-/* Estilos para textos do menu */
-aside p {
-    margin: 0;
-    font-size: 16px;
-    color: #E6E6ED;
-}
-
-.aside-config{
-    margin-top: 130px;
-    padding-top: 20px;
-}
-
-.config-usuario{
-    display: flex;
-    flex-direction: row;
-    margin-top: 30px;
-    justify-content: center;
-    
-}
-.config-usuario-img{
-    width: 50px;
-}
-
-.config-usuario-info{
-    margin-left: 20px;
-    font-size: 20px;
-    text-indent: -6px;
-}
-
-        aside > div:last-child > div {
-            display: flex;
-            align-items: center;
-        }
-
-        aside > div:last-child img {
-           
-            border-radius: 50%;
-        }
-
-        aside > div:last-child p {
-            margin-left: 10px;
-            font-weight: bold;
-        }
-
-        aside > div:last-child button {
-            background-color: #1D1393;
-    border: .5px solid #3b348b;
-    color: #E6E6ED;
-    padding: 4px 18px;
-    border-radius: 4px;
-    cursor: pointer;
-        }
-
-        aside > div:last-child button:hover {
-            background-color: #0056b3;
-        }
-
-.content-section{
-display: flex;
-}
-
-.content-section{
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;   
-}
-
-.content-info-section{
+.content-info-section {
     margin-right: 250px;
 }
-.content-saldo-usuario{
+
+.content-saldo-usuario {
     display: flex;
     flex-direction: row;
 }
-.content-saldo-usuario img{
+
+.content-saldo-usuario img {
     margin-left: 10px;
 }
 
-.content-info-usuario{
+
+
+.content-info-usuario {
     display: flex;
     flex-direction: column;
-    margin:0;
-    padding: 0;
-    margin-bottom: 40px;
-    
-}
-.content-info-usuario p, h3{
     margin: 0;
     padding: 0;
+    margin-bottom: 40px;
+
+}
+
+.content-info-usuario p,
+h3 {
+    margin: 0;
+    padding: 0;
+    
 }
 
 .content-info-usuario h3 {
     margin-top: 40px;
 }
 
-.content-transacoes-usuario{
+.content-transacoes-usuario {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -390,66 +276,97 @@ display: flex;
 
 }
 
-.content-transacoes-usuario img{
-    margin-left: 90px;
-    padding: 15px;
+.content-transacoes-usuario-dois {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-right: 5px solid #E6E6ED;
+
+
 }
 
-.content-transacoes-info{
+.content-transacoes-usuario-dois img {
+    margin-top: 20px;
+    margin-left: 90px;
+}
+
+.content-transacoes-usuario img {
+    margin-left: 90px;
+    margin-top: 20px;
+}
+
+.content-transacoes-info {
     display: flex;
     flex-direction: column;
-    
-    
-}
-.content-transacoes-info p, h4{
-    margin: 0;
-    padding: 0;
-}
-.content-transacoes-info h4{
-    margin-top: 30px;
+    font-size: 16px;
+
+
 }
 
-.section-banner{
+.content-transacoes-info p,
+h4 {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+}
+
+
+.content-transacoes-info h4 {
+    margin-top: 30px;
+    font-size: 13px;
+}
+
+.section-banner {
     width: 190px;
     margin-right: 60px;
 }
 
 .scroll-box {
-    width: 100%;
-    height: 300px; /* Defina a altura do box para ativar a rolagem */
-    padding: 10px;
+    width: 400px;
+    height: 300px;
+    /* Defina a altura do box para ativar a rolagem */
+    padding: 0;
     border: 1px solid #000;
     border: none;
     background-color: #fff;
-    overflow-y: scroll; /* Ativa a rolagem vertical */
-    scrollbar-width: thin; 
-    
+    overflow-y: scroll;
+    /* Ativa a rolagem vertical */
+    scrollbar-width: thin;
+
 }
 
 .scroll-box::-webkit-scrollbar {
-    width: 12px; /* Largura da barra de rolagem */
-    
+    width: 12px;
+    /* Largura da barra de rolagem */
+
 }
 
 .scroll-box::-webkit-scrollbar-track {
-    background: #000000; /* Cor do trilho da barra de rolagem */
-    border-radius: 10px; /* Remove as bordas */
-}
-.scroll-box::-webkit-scrollbar-thumb {
-    background: #888; /* Cor do polegar da barra de rolagem */
-    border-radius: 10px; /* Remove as bordas */
-    border: none; /* Remove qualquer borda */
-    
+    background: #000000;
+    /* Cor do trilho da barra de rolagem */
+    border-radius: 10px;
+    /* Remove as bordas */
 }
 
-.section-secundaria{
+.scroll-box::-webkit-scrollbar-thumb {
+    background: #888;
+    /* Cor do polegar da barra de rolagem */
+    border-radius: 10px;
+    /* Remove as bordas */
+    border: none;
+    /* Remove qualquer borda */
+
+}
+
+.section-secundaria {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-end;
 }
 
-.botao-sair{
+.botao-sair {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -459,22 +376,34 @@ display: flex;
     height: 28px;
     border: 1px solid #06004F;
     border-radius: 4px;
-       
+
     align-items: center;
 }
 
-.btn-sair{
+.btn-sair {
     border: none;
     background-color: #fff;
     color: #06004F;
     cursor: pointer;
-    margin-right: 12px;
-    font-weight: bold;
+    margin-bottom: 30px;
 }
 
-.notificacao{
+.notificacao {
     display: flex;
     flex-direction: row;
     justify-content: center;
+}
+
+.img-olho {
+    cursor: pointer;
+}
+
+.oculto {
+    background-color: #D9D9D9;
+    padding: 10px 20px;
+    width: 100px;
+    border-radius: 5px;
+    display: inline-block;
+    color: #D9D9D9;
 }
 </style>

@@ -10,50 +10,52 @@ const routes = [
   {
     path: '/about',
     name: 'about',
-    
+
     component: () => import('../views/AboutView.vue')
   },
   {
     path: '/login',
     name: 'login',
-    
+
     component: () => import('../views/Login.vue')
   },
   {
     path: '/cadastro',
     name: 'cadastro',
-    
+
     component: () => import('../views/CadastroView.vue')
   },
   {
     path: '/detalhes',
     name: 'detalhes',
-    
+
     component: () => import('../views/DetalhesView.vue')
   },
   {
     path: '/teste',
     name: 'teste',
-    
+
     component: () => import('../views/teste.vue')
   },
   {
     path: '/transacao',
     name: 'transacao',
-    
+
     component: () => import('../views/TransacaoView.vue')
   },
   {
     path: '/historico',
     name: 'historico',
-    
+
     component: () => import('../views/HistoricoView.vue')
   },
+
 ]
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes
-})
+});
+
 
 export default router
