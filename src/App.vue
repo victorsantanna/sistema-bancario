@@ -8,9 +8,6 @@
 
 <script>
 import Navbar from './components/Navbar.vue';
-import usuarioService from './services/usuariosService'
-
-
 
 export default {
   components: {
@@ -18,30 +15,15 @@ export default {
   },
   data() {
     return {
-      users: [],
+
       isLoading: false,
     }
   },
   computed: {
     isAuthPage() {
-      return this.$route.path === '/login' || this.$route.path === '/cadastro' || this.$route.path === '/detalhes' || this.$route.path === '/teste' || this.$route.path === '/transacao' || this.$route.path === '/historico';
+      const authPages = ['/login', '/cadastro', '/detalhes', '/teste', '/transacao', '/historico'];
+      return authPages.includes(this.$route.path);
     },
-  },
-
-  //created(){
-  //  this.getUsuarios();
-  // },
-  methods: {
-    async getUsuarios() {
-      try {
-        const response = await usuarioService.obterUsuarios();
-        console.log(response);
-        this.users = response;
-        return response
-      } catch (error) {
-        console.error(error);
-      }
-    }
   },
 }
 
@@ -52,12 +34,6 @@ export default {
   font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-}
-
-body,
-html,
-#app {
   height: 100%;
   width: 1208px;
 }
