@@ -11,13 +11,13 @@
                         <h3>Historico de transação</h3>
                         <div class="historico-data">
                             <div class="historico-data-info">
-                                <p>Data de inicio</p>
-                                <input class="custom-date-input" type="date">
+                                <p>Filtrar transação</p>
+                                <input class="custom-date-input" type="text" >
                             </div>
-                            <div class="historico-data-info">
+                            <!-- <div class="historico-data-info">
                                 <p>Data de fim</p>
                                 <input class="custom-date-input" type="date">
-                            </div>
+                            </div> -->
                             <div class="btn-buscar-historico">
                                 <img src="../assets/img/historico/lupa.png" alt="" class="btn-lupa">
                                 <button class="btn-buscar">Buscar</button>
@@ -25,50 +25,52 @@
 
                         </div>
                     </div>
-                    <div class="scroll-box">
-                        <div v-if="transacoes.length > 0" class="conteudo-historico">
-                            <div v-for="(transacao, index) in transacoes" :key="index">
-                                <p>{{ formatarData(transacao.data) }}</p>
-                                <div class="conteudo-historico-info">
-                                    <div class="historico-group">
-                                        <img :src="iconeTransacao(transacao.tipo)" alt="">
+                    <div>
+                        <div class="scroll-box">
+                            <div v-if="transacoes.length > 0" class="conteudo-historico">
+                                <div v-for="(transacao, id) in transacoes" :key="id">
+                                    <p>{{ formatarData(transacao.data) }}</p>
+                                    <div class="conteudo-historico-info">
+                                        <div class="historico-group">
+                                            <img :src="iconeTransacao(transacao.tipo)" alt="">
+                                        </div>
+                                        <div class="historico-group">
+                                            <h3>{{ tipoTransacao(transacao.tipo) }}</h3>
+                                            <p>R$ {{ transacao.valor.toFixed(2) }}</p>
+                                            <p>{{ transacao.contaDestino.usuario.nomeCompleto }}</p>
+                                        </div>
+    
+                                        <div class="historico-group">
+                                            <h3>CPF/CNPJ</h3>
+                                            <p>{{ transacao.contaDestino.usuario.cpfCnpj }}</p>
+                                        </div>
+                                        <div class="historico-group">
+                                            <h3>Agência</h3>
+                                            <p>{{ transacao.contaDestino.agencia }}</p>
+                                        </div>
+                                        <div class="historico-group">
+                                            <h3>Número da conta</h3>
+                                            <p>{{ transacao.contaDestino.conta }}</p>
+                                        </div>
+                                        <div class="historico-group">
+                                            <h3>Horário</h3>
+                                            <p>{{ formatarHorario(transacao.data) }}</p>
+                                        </div>
+                                        <div class="historico-group">
+                                            <img class="historico-boleto-img" src="../assets/img/historico/comprovante.png"
+                                                alt="boleto">
+                                        </div>
                                     </div>
-                                    <div class="historico-group">
-                                        <h3>{{ tipoTransacao(transacao.tipo) }}</h3>
-                                        <p>R$ {{ transacao.valor.toFixed(2) }}</p>
-                                        <p>{{ transacao.contaOrigem.usuario.nomeCompleto }}</p>
-                                    </div>
-
-                                    <div class="historico-group">
-                                        <h3>CPF/CNPJ</h3>
-                                        <p>{{ transacao.contaOrigem.usuario.cpfCnpj }}</p>
-                                    </div>
-                                    <div class="historico-group">
-                                        <h3>Agência</h3>
-                                        <p>{{ transacao.contaOrigem.agencia }}</p>
-                                    </div>
-                                    <div class="historico-group">
-                                        <h3>Número da conta</h3>
-                                        <p>{{ transacao.contaOrigem.conta }}</p>
-                                    </div>
-                                    <div class="historico-group">
-                                        <h3>Horário</h3>
-                                        <p>{{ formatarHorario(transacao.data) }}</p>
-                                    </div>
-                                    <div class="historico-group">
-                                        <img  class="historico-boleto-img"
-                                            src="../assets/img/historico/comprovante.png" alt="boleto">
-                                    </div>
+    
                                 </div>
-
+    
                             </div>
-
-                        </div>
-                        <div v-else>
-                            <p>Nenhum dado encontrado.</p>
+                            <div v-else>
+                                <p>Nenhum dado encontrado.</p>
+                            </div>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </template>
@@ -96,19 +98,82 @@ export default {
                 id: '',
                 saldo: '',
             },
-            transacoes: [],
+            transacoes: [{
+                id: '',
+                valor: 0,
+                data: "",
+                tipo: "",
+                contaOrigem: {
+                    id: '',
+                    conta: "",
+                    agencia: "",
+                    saldo: 0,
+                    usuario: {
+                        id: '',
+                        nomeCompleto: "",
+                        cpfCnpj: "",
+                        email: "",
+                        tipo: ""
+                    }
+                },
+                contaDestino: {
+                    id: '',
+                    conta: "",
+                    agencia: "",
+                    saldo: 0,
+                    usuario: {
+                        id: '',
+                        nomeCompleto: "",
+                        cpfCnpj: "",
+                        email: "",
+                        tipo: ""
+                    }
+                }
+            }],
             dataInicio: '',
             dataFim: '',
 
         }
     },
     methods: {
+
         async getTransacoesCompletaPorId() {
             try {
                 const idUsuario = sessionStorage.getItem('idUsuario');
                 const response = await transacoesService.obterTransacoesCompleta(idUsuario);
                 console.log('Os dados recebidos: ', response);
-                this.transacoes = response.content;
+                this.transacoes = response.content.map(transacao => ({
+                    id: transacao.id || '',
+                    valor: transacao.valor || 0,
+                    data: transacao.data || "",
+                    tipo: transacao.tipo || "",
+                    contaOrigem: {
+                        id: transacao.contaOrigem.id || '',
+                        conta: transacao.contaOrigem.conta || "",
+                        agencia: transacao.contaOrigem.agencia || "",
+                        saldo: transacao.contaOrigem.saldo || 0,
+                        usuario: {
+                            id: transacao.contaOrigem.usuario.id || '',
+                            nomeCompleto: transacao.contaOrigem.usuario.nomeCompleto || "",
+                            cpfCnpj: transacao.contaOrigem.usuario.cpfCnpj || "",
+                            email: transacao.contaOrigem.usuario.email || "",
+                            tipo: transacao.contaOrigem.usuario.tipo || ""
+                        }
+                    },
+                    contaDestino: {
+                        id: transacao.contaDestino.id || '',
+                        conta: transacao.contaDestino.conta || "",
+                        agencia: transacao.contaDestino.agencia || "",
+                        saldo: transacao.contaDestino.saldo || 0,
+                        usuario: {
+                            id: transacao.contaDestino.usuario.id || '',
+                            nomeCompleto: transacao.contaDestino.usuario.nomeCompleto || "",
+                            cpfCnpj: transacao.contaDestino.usuario.cpfCnpj || "",
+                            email: transacao.contaDestino.usuario.email || "",
+                            tipo: transacao.contaDestino.usuario.tipo || ""
+                        }
+                    }
+                }));
                 return response
             } catch (error) {
                 console.error('Erro ao obter transações completas:', error);
@@ -161,15 +226,10 @@ export default {
 
             }
         },
-        async buscarHistorico() {
-            // Implementar a lógica para buscar histórico baseado nas datas dataInicio e dataFim
-            console.log('Buscar histórico com data de início:', this.dataInicio, 'e data de fim:', this.dataFim);
-            // Exemplo de como buscar com as datas:
-            // const response = await transacoesService.buscarHistorico(this.dataInicio, this.dataFim);
-            // Atualizar this.transactions com o resultado da busca
-        },
+
     },
     created() {
+
         this.getTransacoesCompletaPorId();
         // this.getTransacoesPorId();
         this.nomeUsuario = sessionStorage.getItem('nomeUsuario') || '';
@@ -193,9 +253,10 @@ export default {
     flex-direction: column;
     justify-content: center;
     margin: 11px;
+    margin-top: 30px;
     margin-left: 80px;
     width: 67%;
-    height: 460px;
+    height: 400px;
 
 }
 
@@ -217,7 +278,13 @@ export default {
     display: flex;
     flex-direction: column;
 
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+.historico h3{
+    margin:0;
+    padding: 0;
+
 }
 
 .historico-data {
@@ -261,7 +328,7 @@ export default {
 }
 
 .historico-group h3 {
-    font-size: 15px;
+    font-size: 12px;
     margin: 0;
     padding: 0;
     white-space: nowrap;
@@ -277,9 +344,7 @@ export default {
 
 }
 
-.historico-group img {
-    margin-top: 13px;
-}
+
 
 .btn-buscar-historico {
     display: flex;
@@ -323,7 +388,7 @@ export default {
 
 .scroll-box {
     width: 100%;
-    max-height: 800px;
+    max-height: 300px;
     overflow-y: auto;
     border: none;
     padding: 10px;
