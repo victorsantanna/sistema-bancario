@@ -31,7 +31,7 @@
                                     <div class="content-transacoes-info">
                                         <h4>{{ tipoTransacao(transacao.tipo) }}</h4>
                                         <p class="text-tipo-transacao">{{ formatarMoeda(transacao.valor) }}</p>
-                                        <p> {{ capitalizarPrimeirasLetras(transacao.contaOrigem.usuario.nomeCompleto)
+                                        <p> {{ capitalizarPrimeirasLetras(transacao.contaDestino.usuario.nomeCompleto)
                                             }}</p>
                                     </div>
                                     <div>
@@ -182,41 +182,12 @@ export default {
                 console.error(error);
             }
         },
-
-        // async getTransacoesPorId() {
-        //     try {
-        //         const idUsuario = sessionStorage.getItem('idUsuario');
-        //         const response = await transacoesService.obterTransacaoPorId(idUsuario);
-        //         console.log("Dados da transação recebidos:", response);
-
-        //         // Verificar se a resposta é um array ou um objeto único
-        //         if (response && Array.isArray(response)) {
-
-        //             this.transactions = response;
-        //         } else if (response) {
-        //             console.log("A resposta é um objeto:", response);
-        //             this.transactions = [response]; // Colocar o objeto único dentro de um array
-        //         } else {
-        //             console.error('Dados da transação não encontrados ou são inválidos');
-        //         }
-
-
-        //         return response
-        //     } catch (error) {
-        //         console.error(error);
-        //     }
-        // },
         async getTransacoesCompletaPorId() {
             try {
                 const idUsuario = sessionStorage.getItem('idUsuario');
                 const response = await transacoesService.obterTransacoesCompleta(idUsuario);
                 console.log('Os dados recebidos: ', response);
                 this.transacoesCompleta = response.content;
-                // if (response && response.content && Array.isArray(response.content)) {
-                //     this.transacoesCompleta = response.content; // Atribui o array de transações
-                // } else {
-                //     console.error('A resposta da API não é um array válido:', response);
-                // }
                 return response
             } catch (error) {
                 console.error('Erro ao obter transações completas:', error);
