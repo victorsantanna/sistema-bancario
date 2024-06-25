@@ -74,6 +74,7 @@
                                     <input v-model="transacao.valor" v-money="moneyConfig" class="input-valor"
                                         type="text">
                                 </div>
+                                <div v-if="erroTransacao" class="msg-erro">{{ erroTransacao }}</div>
 
                                 <div class="btn-transacao">
                                     <button v-show="etapaFormulario < 3" @click="avancarFormulario(etapaFormulario + 1)"
@@ -106,7 +107,7 @@
     </div>
 
     <ModalTransacaoVue :open="isOpen" @close="isOpen = !isOpen" @ver-comprovante="abrirModalComprovante" />
-    <Comprovante :open="isModalComprovanteOpen"  :transacao="transacaoDetalhe" @close="isModalComprovanteOpen = false" />
+    <Comprovante :open="isModalComprovanteOpen" :transacao="transacaoDetalhe" @close="isModalComprovanteOpen = false" />
 
 
 </template>
@@ -173,6 +174,7 @@ export default {
             exibirErroNomeCompleto: false,
             exibirErroCpfCnpj: false,
             exibirErroTipoConta: false,
+            erroTransacao: '',
         }
     },
     components: {
@@ -242,9 +244,20 @@ export default {
         async enviaTransacao() {
             try {
                 if (this.instituicaoValida) {
-                    this.isLoadingTransacao = true;
                     let valorTransacao = parseFloat(this.transacao.valor.replace('R$ ', '').replace(/\./g, '').replace(',', '.'));
 
+                    if (valorTransacao <= 0) {
+                        throw new Error('Valor da transação deve ser maior que zero.');
+
+                    }
+
+                    // Verifica se o valor da transação não excede o saldo disponível
+                    if (valorTransacao > this.valorSaldo) {
+                        throw new Error('Saldo insuficiente para realizar a transação.');
+
+                    }
+
+                    this.isLoadingTransacao = true;
                     let saldoAtual = Number(this.valorSaldo);
                     if (isNaN(saldoAtual)) {
                         throw new Error('Valor do saldo inválido');
@@ -273,6 +286,10 @@ export default {
                 }
             } catch (error) {
                 console.error(error);
+                this.erroTransacao = error.message;
+                setTimeout(() => {
+                    this.erroTransacao = '';
+                }, 3000);
             }
         },
         avancarFormulario(proximaEtapa) {
