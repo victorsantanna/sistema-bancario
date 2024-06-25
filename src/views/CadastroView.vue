@@ -26,6 +26,7 @@
                                 v-model="usuario.cpfCnpj" v-mask="cpfCnpjMask" @blur="validarCpfCnpj" type="text"
                                 id="cpfcnpj" name="cpfcnpj" placeholder="Informe seu CPF ou CNPJ" required>
                             <p v-if="erroCpfCnpj" class="mensagem-erro">{{ erroCpfCnpj }}</p>
+                            <p v-if="error" class="mensagem-erro">{{ error }}</p>
                         </div>
                     </div>
                     <div class="form-row">
@@ -73,8 +74,9 @@
                             <button class="btn-naocliente" type="button">Já sou cliente</button>
                         </router-link>
                     </div>
+                    
                 </form>
-                <div v-if="showModal"  class="modal">   
+                <div v-if="showModal" class="modal">
                     <div class="modal-content">
                         <p>Cadastro efetuado com sucesso!</p>
                         <button class="close" @click="closeModal">Acesse sua conta</button>
@@ -110,6 +112,7 @@ export default {
             erroCpfCnpj: '',
             erroSenha: '',
             erroSenhaRepetida: '',
+            error: '',
 
 
             isLoading: true,
@@ -219,7 +222,9 @@ export default {
                 console.error('Erro ao cadastrar usuário ou conta:', error.message);
                 if (error.response && error.response.data) {
                     this.error = error.response.data.messageUser || error.response.data.message || 'Erro ao cadastrar usuário';
-                    console.error('Erro detalhado:', error.response.data.messageUser);
+                    console.error('Erro detalhado:', this.error);
+                } else {
+                    this.error = 'Erro desconhecido ao tentar cadastrar usuário.';
                 }
             }
         },
@@ -469,6 +474,7 @@ label {
     text-align: center;
     border-radius: 10px;
 }
+
 .modal-content p {
     color: #ffff;
     font-size: 20px;
@@ -487,7 +493,4 @@ label {
     font-weight: bold;
     cursor: pointer;
 }
-
-
-
 </style>
