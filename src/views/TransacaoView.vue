@@ -1,14 +1,12 @@
 <template>
+    <VueElementLoading :active="isLoading" :is-full-screen=true spinner="spinner" color="#06004F" text="Carregando"
+        duration="1" size="60" />
     <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
         :cpf-cnpj="cpfCnpj" />
     <div class="container">
         <div class="body-content">
             <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
             <section class="content-section">
-                <VueElementLoading :active="isLoading" spinner="spinner" color="#06004F" text="Carregando" duration="1"
-                    size="60" />
-                <VueElementLoading :active="isLoadingTransacao" spinner="spinner" color="#06004F" text="Carregando"
-                    duration="1" size="60" />
                 <div class="content-info-section">
 
                     <div class="content-transacoes-info">
@@ -28,7 +26,7 @@
                         <div class="content-info-transacao">
                             <button @click="etapaFormulario = 1" :class="{ 'active': etapaFormulario === 1 }"
                                 class="btn-info-transacao">Dados da conta</button>
-                            <button @click="etapaFormulario = 2" :class="{ 'active': etapaFormulario === 2 }"
+                            <button @click="etapaFormulario = 1" :class="{ 'active': etapaFormulario === 2 }"
                                 class="btn-info-transacao">Valor</button>
                             <button @click="etapaFormulario = 3" :class="{ 'active': etapaFormulario === 3 }"
                                 class="btn-info-transacao">Concluir</button>
@@ -50,7 +48,7 @@
                                     <input v-model="nomeUsuario" type="text" placeholder="Conta Origem" readonly />
                                     <input v-model="transacao.idContaOrigem" type="hidden" />
                                     <input v-model="transacao.idContaDestino" type="text" placeholder="Conta destino"
-                                        @blur="validarContaDestino" />
+                                        @blur="validarContaDestino(); getContasPorId(transacao.idContaDestino)" />
                                 </div>
 
                                 <span v-if="exibirErroNomeCompleto" id="erro-conta" class="msg-erro">Por favor, preencha
@@ -64,15 +62,18 @@
                                 <span v-if="exibirErroTipoConta" class="msg-erro lado-a-lado">Por favor, preencha o tipo
                                     de conta.</span>
                                 <div class="form-row" v-show="etapaFormulario >= 2">
-                                    <input v-model="cpfCnpjDestino" type="text" placeholder="CPF/CNPJ"
+                                    <input  v-mask="cpfCnpjMask" v-model="cpfCnpjDestino" type="text" placeholder="CPF/CNPJ"
                                         @blur="validarCpfCnpjDestino" />
                                     <input v-model="tipoContaDestino" type="text" placeholder="Tipo de conta"
                                         @blur="validarTipoContaDestino" />
                                 </div>
-                                <div class="form-row" v-show="etapaFormulario >= 2">
+                                <div class="form-row" v-show="etapaFormulario >= 3">
                                     <p class="text-valor-transf">Valor da transferência</p>
-                                    <input v-model="transacao.valor" v-money="moneyConfig" class="input-valor"
+                                </div>
+                                <div class="form-row">
+                                    <input  v-show="etapaFormulario >= 3" v-model="transacao.valor" v-money="moneyConfig" 
                                         type="text">
+
                                 </div>
                                 <div v-if="erroTransacao" class="msg-erro">{{ erroTransacao }}</div>
 
@@ -141,6 +142,7 @@ export default {
             olhoFechado: true,
 
             contas: [],
+            contasPorId: {},
 
             indiceAtual: 0,
             imagens: [
@@ -166,9 +168,11 @@ export default {
 
             instituicao: '',
             instituicaoValida: false,
+
             nomeCompleto: '',
             cpfCnpjDestino: '',
             tipoContaDestino: '',
+
             exibirErroInstituicao: false,
             exibirErroContaDestino: false,
             exibirErroNomeCompleto: false,
@@ -184,8 +188,13 @@ export default {
         imagemAtual() {
             return this.imagens[this.indiceAtual];
         },
+
         saldoZerado() {
             return this.valorSaldo === 0;
+        },
+
+        cpfCnpjMask() {
+            return this.cpfCnpj.length <= 14 ? '###.###.###-##' : '##.###.###/####-##';
         }
     },
     mounted() {
@@ -213,6 +222,7 @@ export default {
     },
     created() {
         this.getContas();
+        this.getContasPorId();
         this.nomeUsuario = sessionStorage.getItem('nomeUsuario') || '';
         this.nomeUsuario = this.capitalizarPrimeirasLetras(this.nomeUsuario);
         this.valorSaldo = Number(sessionStorage.getItem('valorSaldo')) || 0;
@@ -236,7 +246,18 @@ export default {
                 const response = await contasService.obterContas();
                 console.log(response);
                 this.contas = response;
-
+                this.preencherContaOrigem();
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async getContasPorId(idContaDestino) {
+            try {
+                const response = await contasService.obterContasPorId(idContaDestino);
+                console.log(response);
+                this.nomeCompleto = response.usuario.nomeCompleto || '';
+                this.cpfCnpjDestino = response.usuario.cpfCnpj || '';
+                this.tipoContaDestino = response.usuario.tipo || '';
             } catch (error) {
                 console.error(error);
             }
@@ -291,6 +312,17 @@ export default {
                     this.erroTransacao = '';
                 }, 3000);
             }
+        },
+        preencherContaOrigem() {
+            const contaLogada = this.contas.find(conta => conta.contaLogada);
+            if (contaLogada) {
+                this.transacao.idContaOrigem = contaLogada.id;
+                this.nomeUsuario = contaLogada.nomeUsuario;
+                this.valorSaldo = contaLogada.saldo;
+                this.tipoConta = contaLogada.tipoConta;
+                this.cpfCnpj = contaLogada.cpfCnpj;
+            }
+            this.isLoading = false;
         },
         avancarFormulario(proximaEtapa) {
             this.etapaFormulario = proximaEtapa;
@@ -349,6 +381,8 @@ export default {
                 }, 3000);
             }
         },
+        
+        
 
     },
 }
@@ -432,7 +466,7 @@ h3 {
 .content-transacoes-info p {
     margin: 2px;
     padding: 2px;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 
@@ -461,6 +495,8 @@ h3 {
 
 
 
+
+
 .form-row input:last-child {
     margin-right: 0;
 
@@ -476,9 +512,9 @@ h3 {
 }
 
 .text-valor-transf {
-    font-size: 15px;
+    font-size: 12px;
     color: #06004F;
-    font-weight: bold;
+    font-weight: 600;
 
 }
 
