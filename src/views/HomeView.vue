@@ -1,5 +1,4 @@
 <template>
-  <VueElementLoading :active="isLoading" spinner="spinner" color="#06004F" text="Carregando" duration="1" size="60" :is-full-screen=true />
   <div class="container">
     <div class="conteudo-home">
       <div class="conteudo-imagem-home">
@@ -28,29 +27,29 @@
       <img class="img-segunda-parte" src="../assets/img/Cartão.png" alt="imagem cartão">
     </div>
   </div>
-  <div class="container-terceira-parte">
-
-  </div>
+  <VueElementLoading :active="isLoading" spinner="spinner" color="#06004F" text="Carregando" duration="1" size="60"
+    :is-full-screen=true />
 </template>
 
 <script>
 import { RouterLink } from 'vue-router';
+import Navbar from '@/components/Navbar.vue';
 import VueElementLoading from 'vue-element-loading';
 
 export default {
   name: 'HomeView',
   components: {
-    RouterLink,VueElementLoading,
+    RouterLink, Navbar, VueElementLoading,
   },
-  data(){
-    return{
+  data() {
+    return {
       isLoading: true,
     };
   },
   mounted() {
     setTimeout(() => {
       this.isLoading = false;
-    }, 1200); 
+    }, 1200);
   }
 }
 
@@ -141,7 +140,7 @@ p {
   align-content: center;
   align-items: center;
   width: 1150px;
-  
+
 }
 
 .conteudo-segunda-parte {
@@ -149,7 +148,7 @@ p {
   padding: 50px;
   margin: 30px;
   margin-right: 150px;
-  
+
 }
 
 .conteudo-segunda-parte h2 {
@@ -180,137 +179,137 @@ p {
   width: 500px;
 }
 
-@media (max-width: 394px) {
+@media (max-width: 768px) {
   .container {
-    padding: 0;
-    margin: 50px;
+    font-family: 'Montserrat', sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    height: 250px;
-  }
+    width: 500px;
 
-  h2 {
-    font-size: 20px;
-    color: #06004F;
-    margin-bottom: 4px;
-
-
-  }
-
-  p {
-    font-size: 14px;
   }
 
   .conteudo-home {
+    width: 1000px;
+    height: auto;
     display: flex;
-    flex-direction: column;
-    width: 90%;
-    margin: 10px;
-    
-    
-  }
-
-  .conteudo-info {
-    width: 90%;
-    margin: 0;
-    padding: 0;
-    
-  }
-
-  .botao-info {
-    width: 220px;
-    font-size: 12px;
-  }
-
-  .container-segunda-parte{
-    width: 80%;
-    margin: 0;
-    padding: 0;
-    margin-bottom: 900px;
-  }
-  .conteudo-segunda-parte{
-    width: 50%;
-    margin: 0;
-    padding: 0;
-  }
-
-  .conteudo-segunda-parte h2 {
-    font-size: 20px;
-    
-  }
-
-  .conteudo-segunda-parte p {
-    font-size: 14px;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
    
   }
 
-  .gradiente-linha {
-    width: 100px;
-  }
-
-  .imagem-home,
-  .img-segunda-parte {
+  .imagem-home {
     display: none;
+
   }
-
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
-
-  p {
-    font-size: 14px;
-  }
-
-  .conteudo-home {
-    display: flex;
-    flex-direction: column;
-    width: 90%;
-    margin: 10px;
-    margin-bottom: 350px;
-    padding: 0;
-  }
-
-  .conteudo-info {
-    width: 90%;
-    margin: 0;
-    padding: 0;
+  .conteudo-info{
+    margin-bottom: 470px;
   }
 
   .botao-info {
-    width: 220px;
-    font-size: 12px;
+    background-color: #06004F;
+    color: #E6E6ED;
+    width: 450px;
+    height: 45px;
+    border: none;
+    border-radius: 4px;
+    padding: 16px, 12px, 16px, 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 700;
   }
 
-  .conteudo-segunda-parte h2 {
-    width: 100%;
-    font-size: 20px;
+  
+}
+
+@media (max-width: 600px) {
+  .container {
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+
   }
 
-  .conteudo-segunda-parte p {
-    font-size: 14px;
-    width: 100%;
-  }
-
-  .gradiente-linha {
-    width: 80px;
-  }
-
-  .imagem-home,
-  .img-segunda-parte {
+  .imagem-home {
     display: none;
   }
 
+  .conteudo-home {
+    width: 20px;
+    height: 10px;
+
+  }
+
+  .conteudo-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    margin-left: 100px;
+    margin-bottom: 440px;
+  }
+
+  h2 {
+    font-size: 19px;
+    font-weight: 700;
+    color: #06004F;
+    margin: 0;
+    padding: 0;
+  }
+
+  p {
+    font-size: 16px;
+  }
+
+  .botao-info {
+    background-color: #06004F;
+    color: #E6E6ED;
+    width: 300px;
+    height: 45px;
+    border: none;
+    border-radius: 4px;
+    padding: 16px, 12px, 16px, 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .container-segunda-parte {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+  }
+
+  .img-segunda-parte {
+    width: 300px;
+    order: 1;
+  }
+
+  .conteudo-segunda-parte {
+    width: 200px;
+    padding: 0px;
+
+
+    order: 2;
+  }
+
+  .conteudo-segunda-parte p {
+    font-size: 20px;
+    width: 270px;
+    font-weight: 400;
+    color: #06004F;
+    margin-bottom: 10px;
+  }
+
+
 }
+
+
 </style>
