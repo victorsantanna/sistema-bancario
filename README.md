@@ -1,5 +1,8 @@
 # Sistema Bancário - StefBank
 
+## Preview da Imagem
+![Preview da Landing Page](https://github.com/victorsantanna/sistema-bancario/blob/main/src/assets/img/stefbank-preview.png)
+
 ## Visão Geral
 
 StefBank é uma aplicação de sistema bancário desenvolvida com Vue.js no frontend e Java no backend. O sistema permite a gestão de usuários, contas e transações financeiras, interagindo com uma API RESTful para realizar operações básicas de um banco.
