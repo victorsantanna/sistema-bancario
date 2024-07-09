@@ -1,6 +1,6 @@
 <template>
 
-  <Navbar v-if="!isAuthPage" />
+  <Navbar v-if="!ehPaginaDeAutenticacao" />
 
   <router-view />
 
@@ -15,13 +15,12 @@ export default {
   },
   data() {
     return {
-
       isLoading: false,
     }
   },
   computed: {
-    isAuthPage() {
-      const authPages = ['/login', '/cadastro', '/detalhes', '/teste', '/transacao', '/historico'];
+    ehPaginaDeAutenticacao() {
+      const authPages = ['/login', '/cadastro', '/detalhes', '/transacao', '/historico'];
       return authPages.includes(this.$route.path);
     },
   },
@@ -35,6 +34,6 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
-  width: 1208px;
+  width: 100%;
 }
 </style>
