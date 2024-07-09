@@ -2,11 +2,11 @@
     <div class="container">
         <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
             :cpf-cnpj="cpfCnpj" />
+        <VueElementLoading :active="isLoading" :is-full-screen=true spinner="spinner" color="#06004F" text="Carregando"
+            duration="1" size="60" />
         <div class="conteudo-corpo">
             <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
             <section class="content-section">
-                <VueElementLoading :active="isLoading" :is-full-screen=true spinner="spinner" color="#06004F"
-                    text="Carregando" duration="1" size="60" />
                 <div class="content-info-section">
                     <div class="content-info-usuario">
                         <h3>Bem-vindo(a), {{ capitalizarPrimeirasLetras(nomeUsuario) }}</h3>
@@ -29,15 +29,14 @@
                                 <div class="content-transacoes-usuario-dois"
                                     v-for="(transacao, index) in transacoesCompleta" :key="index">
                                     <div class="content-transacoes-info">
-                                        <h4>{{ tipoTransacao(transacao.tipo) }}</h4>
+                                        <h4>{{ transacao.tipo }}</h4>
                                         <p class="text-tipo-transacao">{{ formatarMoeda(transacao.valor) }}</p>
-                                        <p> {{ capitalizarPrimeirasLetras(transacao.contaDestino.usuario.nomeCompleto)
+                                        <p> {{ capitalizarPrimeirasLetras(transacao.contaOrigem?.usuario?.nomeCompleto
+                                            || 'N/A')
                                             }}</p>
                                     </div>
-                                    <div>
-                                        <img v-if="transacao.tipo === 'DEPOSITO'"
-                                            src="../assets/img/img-detalhes/frame3.png" alt="">
-                                        <img v-else src="../assets/img/img-detalhes/frame4.png" alt="">
+                                    <div class="content-transacoes-img">
+                                        <img :src="iconeTransacao(transacao.tipo)" alt="icone tipo da transação">
                                     </div>
                                 </div>
                             </div>
@@ -68,8 +67,6 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
 import VueElementLoading from 'vue-element-loading';
 
 import contasService from '@/services/contasService.js';
@@ -119,32 +116,48 @@ export default {
         setInterval(() => {
             this.indiceAtual = (this.indiceAtual + 1) % this.imagens.length;
         }, 5000);
+
         setTimeout(() => {
             this.isLoading = false;
         }, 1200);
+
         const modalExibido = sessionStorage.getItem('modalBemVindoExibido');
         if (!modalExibido) {
             this.exibirModalBemVindo = true;
             sessionStorage.setItem('modalBemVindoExibido', 'true');
         };
+
     },
     created() {
         this.idUsuario = sessionStorage.getItem('idUsuario');
         this.getContaPorId();
-        // this.getTransacoesPorId();
         this.getTransacoesCompletaPorId();
     },
     methods: {
         tipoTransacao(tipo) {
             return tipo === 'TRANSFERENCIA' ? 'Transferência' : 'Deposito';
         },
+        iconeTransacao(tipo) {
+            switch (tipo) {
+                case 'TRANSFERENCIA':
+                    return require('../assets/img/historico/retirada.png');
+                case 'SAQUE':
+                    return require('../assets/img/historico/retirada.png');
+                case 'DEPOSITO':
+                    return require('../assets/img/historico/deposito.png');
+
+            }
+        },
+
         fecharModal() {
             console.log('Modal close event received');
             this.exibirModalBemVindo = false;
         },
+
         capitalizarPrimeirasLetras(str) {
             return str.replace(/\b\w/g, char => char.toUpperCase());
         },
+
         toggleOlho() {
             this.olhoFechado = !this.olhoFechado;
         },
@@ -159,6 +172,7 @@ export default {
                 console.error(error);
             }
         },
+
         async getContaPorId() {
             try {
                 const idUsuario = sessionStorage.getItem('idUsuario');
@@ -182,20 +196,54 @@ export default {
                 console.error(error);
             }
         },
+
         async getTransacoesCompletaPorId() {
             try {
                 const idUsuario = sessionStorage.getItem('idUsuario');
                 const response = await transacoesService.obterTransacoesCompleta(idUsuario);
                 console.log('Os dados recebidos: ', response);
-                this.transacoesCompleta = response.content;
-                return response
+                this.transacoesCompleta = response.content.map(transacao => ({
+                    id: transacao.id || '',
+                    valor: transacao.valor || 0,
+                    data: transacao.data || "",
+                    tipo: transacao.tipo || "",
+                    contaOrigem: {
+                        id: transacao.contaOrigem?.id || '',
+                        conta: transacao.contaOrigem?.conta || "",
+                        agencia: transacao.contaOrigem?.agencia || "",
+                        saldo: transacao.contaOrigem?.saldo || 0,
+                        usuario: {
+                            id: transacao.contaOrigem?.usuario?.id || '',
+                            nomeCompleto: transacao.contaOrigem?.usuario?.nomeCompleto || "",
+                            cpfCnpj: transacao.contaOrigem?.usuario?.cpfCnpj || "",
+                            email: transacao.contaOrigem?.usuario?.email || "",
+                            tipo: transacao.contaOrigem?.usuario?.tipo || ""
+                        }
+                    },
+                    contaDestino: {
+                        id: transacao.contaDestino?.id || '',
+                        conta: transacao.contaDestino?.conta || "",
+                        agencia: transacao.contaDestino?.agencia || "",
+                        saldo: transacao.contaDestino?.saldo || 0,
+                        usuario: {
+                            id: transacao.contaDestino?.usuario?.id || '',
+                            nomeCompleto: transacao.contaDestino?.usuario?.nomeCompleto || "",
+                            cpfCnpj: transacao.contaDestino?.usuario?.cpfCnpj || "",
+                            email: transacao.contaDestino?.usuario?.email || "",
+                            tipo: transacao.contaDestino?.usuario?.tipo || ""
+                        }
+                    }
+                }));
+                return response;
             } catch (error) {
                 console.error('Erro ao obter transações completas:', error);
             }
         },
+
         formatarMoeda(valor) {
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
         },
+
         formatarCpfCnpj(cpfCnpj) {
             if (cpfCnpj && cpfCnpj.length === 11) {
                 return cpfCnpj.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "***.$2.$3-**");
@@ -216,7 +264,6 @@ export default {
 .container {
     width: 1240px;
     height: 585px;
-
 }
 
 .conteudo-corpo {
@@ -244,8 +291,6 @@ export default {
     margin-left: 10px;
 }
 
-
-
 .content-info-usuario {
     display: flex;
     flex-direction: column;
@@ -259,49 +304,37 @@ export default {
 h3 {
     margin: 0;
     padding: 0;
-    
+
 }
 
 .content-info-usuario h3 {
     margin-top: 40px;
 }
 
-.content-transacoes-usuario {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    border-right: 5px solid #E6E6ED;
-
-
-}
-
 .content-transacoes-usuario-dois {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     border-right: 5px solid #E6E6ED;
-
-
-}
-
-.content-transacoes-usuario-dois img {
-    margin-top: 20px;
-    margin-left: 90px;
-}
-
-.content-transacoes-usuario img {
-    margin-left: 90px;
-    margin-top: 20px;
+    padding: 0;
+    
 }
 
 .content-transacoes-info {
     display: flex;
     flex-direction: column;
     font-size: 16px;
-
-
+    
+   
+    
+}
+.content-transacoes-info,
+.content-transacoes-img {
+    width: 100%; /* Garantir que ocupem a largura total disponível */
+    display: flex;
+    justify-content: center; /* Centralizar o conteúdo */
+    
 }
 
 .content-transacoes-info p,
@@ -309,8 +342,8 @@ h4 {
     margin: 0;
     padding: 0;
     font-size: 16px;
+    
 }
-
 
 .content-transacoes-info h4 {
     margin-top: 30px;
@@ -323,40 +356,29 @@ h4 {
 }
 
 .scroll-box {
-    width: 400px;
+    width: 350px;
     height: 300px;
-    /* Defina a altura do box para ativar a rolagem */
-    padding: 0;
     border: 1px solid #000;
     border: none;
     background-color: #fff;
     overflow-y: scroll;
-    /* Ativa a rolagem vertical */
     scrollbar-width: thin;
-
 }
 
 .scroll-box::-webkit-scrollbar {
     width: 12px;
-    /* Largura da barra de rolagem */
 
 }
 
 .scroll-box::-webkit-scrollbar-track {
     background: #000000;
-    /* Cor do trilho da barra de rolagem */
     border-radius: 10px;
-    /* Remove as bordas */
 }
 
 .scroll-box::-webkit-scrollbar-thumb {
     background: #888;
-    /* Cor do polegar da barra de rolagem */
     border-radius: 10px;
-    /* Remove as bordas */
     border: none;
-    /* Remove qualquer borda */
-
 }
 
 .section-secundaria {
@@ -376,7 +398,6 @@ h4 {
     height: 28px;
     border: 1px solid #06004F;
     border-radius: 4px;
-
     align-items: center;
 }
 

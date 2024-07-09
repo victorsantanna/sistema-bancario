@@ -15,8 +15,9 @@ export default {
         const { data } = await http.post(`transacoes/fazer-transferencias`, parametro)
         return data
     },
+    
     obterTransacoesCompleta: async (parametro) => {
-        const { data } = await http.get(`transacoes?id=${parametro}`)
+        const { data } = await http.get(`transacoes?idConta=${parametro}&sort=data,desc`)
         return data
     },
 }

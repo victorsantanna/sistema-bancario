@@ -2,12 +2,13 @@
     <div class="container">
         <VueElementLoading :active="isLoading" :is-full-screen="true" spinner="spinner" color="#06004F"
             text="Carregando" duration="1" size="60" />
-        <div class="content-cadastro">
 
+        <div class="content-cadastro">
             <div class="titulo-cadastro">
                 <h2 class="titulo-cadastro-form">Realize seu cadastro</h2>
                 <p class="subtitulo-paragrafo">DADOS PESSOAIS</p>
             </div>
+
             <div class="content-form-cadastro">
                 <form>
                     <div class="form-row">
@@ -19,12 +20,13 @@
                                 name="nome" placeholder="Informe o seu nome completo" required>
                             <p v-if="erroNomeCompleto" class="mensagem-erro">{{ erroNomeCompleto }}</p>
                         </div>
+
                         <div class="form-group">
                             <label for="cpfcnpj">CPF/CNPJ</label>
                             <input
                                 :class="{ 'input-error': erroCpfCnpj, 'input-success': !erroCpfCnpj && usuario.cpfCnpj }"
-                                v-model="usuario.cpfCnpj" v-mask="cpfCnpjMask" @blur="validarCpfCnpj" type="text"
-                                id="cpfcnpj" name="cpfcnpj" placeholder="Informe seu CPF ou CNPJ" required>
+                                v-model="usuario.cpfCnpj" @input="formatarCpfCnpj" @blur="validarCpfCnpj" type="text"
+                                id="cpfcnpj" name="cpfcnpj" placeholder="Informe seu CPF ou CNPJ">
                             <p v-if="erroCpfCnpj" class="mensagem-erro">{{ erroCpfCnpj }}</p>
                             <p v-if="error" class="mensagem-erro">{{ error }}</p>
                         </div>
@@ -74,7 +76,7 @@
                             <button class="btn-naocliente" type="button">Já sou cliente</button>
                         </router-link>
                     </div>
-                    
+
                 </form>
                 <div v-if="showModal" class="modal">
                     <div class="modal-content">
@@ -114,7 +116,6 @@ export default {
             erroSenhaRepetida: '',
             error: '',
 
-
             isLoading: true,
             showModal: false,
 
@@ -137,6 +138,45 @@ export default {
     },
 
     methods: {
+        async cadastrarUsuario() {
+
+            this.validarNomeCompleto();
+            this.validarCpfCnpj();
+            this.validarTipoConta();
+            this.validarEmail();
+            this.validarSenha();
+
+
+            if (this.erroNomeCompleto || this.erroCpfCnpj || this.erroEmail || this.erroTipoConta || this.erroSenha) {
+                return;
+            }
+
+            this.usuario.cpfCnpj = this.limparCpfCnpj(this.usuario.cpfCnpj);
+            console.log('Dados do usuário antes de enviar para a API:', this.usuario);
+
+            try {
+
+                const response = await usuarioService.cadastrarUsuario(this.usuario);
+                console.log('Resposta da API ao cadastrar usuário:', response);
+
+                this.contaUsuario.usuario.id = response.id;
+
+                this.contaUsuario.agencia = this.gerarNumeroAgencia();
+
+                await contaService.cadastrarConta(this.contaUsuario);
+
+                this.showModal = true;
+            } catch (error) {
+                console.error('Erro ao cadastrar usuário ou conta:', error.message);
+                if (error.response && error.response.data) {
+                    this.error = error.response.data.messageUser || error.response.data.message || 'Erro ao cadastrar usuário';
+                    console.error('Erro detalhado:', this.error);
+                } else {
+                    this.error = 'Erro desconhecido ao tentar cadastrar usuário.';
+                }
+            }
+        },
+
         limparCpfCnpj(cpfCnpj) {
             return cpfCnpj.replace(/[^\d]/g, '');
         },
@@ -194,41 +234,6 @@ export default {
             }
         },
 
-        async cadastrarUsuario() {
-
-            this.validarNomeCompleto();
-            this.validarCpfCnpj();
-            this.validarTipoConta();
-            this.validarEmail();
-            this.validarSenha();
-
-
-            if (this.erroNomeCompleto || this.erroCpfCnpj || this.erroEmail || this.erroTipoConta || this.erroSenha) {
-                return;
-            }
-
-            this.usuario.cpfCnpj = this.limparCpfCnpj(this.usuario.cpfCnpj);
-
-            try {
-                const response = await usuarioService.cadastrarUsuario(this.usuario);
-                console.log('Usuário cadastrado:', response);
-                this.contaUsuario.usuario.id = response.id;
-                this.contaUsuario.agencia = this.gerarNumeroAgencia();
-                console.log('Dados da conta a ser cadastrada:', this.contaUsuario);
-                await contaService.cadastrarConta(this.contaUsuario);
-                console.log('Conta cadastrada com sucesso')
-                this.showModal = true;
-            } catch (error) {
-                console.error('Erro ao cadastrar usuário ou conta:', error.message);
-                if (error.response && error.response.data) {
-                    this.error = error.response.data.messageUser || error.response.data.message || 'Erro ao cadastrar usuário';
-                    console.error('Erro detalhado:', this.error);
-                } else {
-                    this.error = 'Erro desconhecido ao tentar cadastrar usuário.';
-                }
-            }
-        },
-
         gerarNumeroAgencia() {
             return Math.floor(1000 + Math.random() * 9000).toString();
         },
@@ -240,10 +245,36 @@ export default {
         validarCNPJ(cnpj) {
             return true;
         },
+
         closeModal() {
             this.showModal = false;
             this.$router.push({ name: 'login' })
-        }
+        },
+        formatarCpfCnpj(event) {
+            let valor = this.limparCpfCnpj(event.target.value);
+            if (valor.length <= 11) {
+                valor = this.formatarCPF(valor);
+            } else if (valor.length <= 14) {
+                valor = this.formatarCNPJ(valor);
+            } else {
+                // Caso o valor tenha mais de 14 caracteres, você pode decidir o que fazer
+                // Aqui apenas cortamos o valor para 14 caracteres e aplicamos a máscara de CNPJ
+                valor = this.formatarCNPJ(valor.substring(0, 14));
+            }
+            this.usuario.cpfCnpj = valor;
+        },
+        formatarCPF(valor) {
+            return valor.replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        },
+
+        formatarCNPJ(valor) {
+            return valor.replace(/^(\d{2})(\d)/, "$1.$2")
+                .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+                .replace(/\.(\d{3})(\d)/, ".$1/$2")
+                .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+        },
     },
 
     mounted() {
@@ -254,6 +285,7 @@ export default {
     },
 
     computed: {
+
         cpfCnpjMask() {
             return this.usuario.cpfCnpj.length <= 14 ? '###.###.###-##' : '##.###.###/####-##';
         }
@@ -462,6 +494,7 @@ label {
     background-color: rgba(0, 0, 0, 0.4);
     justify-content: center;
     align-items: center;
+    z-index: 1;
 }
 
 .modal-content {
@@ -469,9 +502,11 @@ label {
     margin: auto;
     padding: 50px;
     border: 1px solid #06004F;
-    width: 80%;
-    max-width: 400px;
+    width: 100%;
+    max-width: 600px;
     text-align: center;
+    justify-content: center;
+    align-items: center;
     border-radius: 10px;
 }
 
@@ -485,7 +520,7 @@ label {
 .close {
     width: 240px;
     height: 44px;
-    margin-top: 10px;
+    margin-top: 20px;
     border: 1.2px solid #06004F;
     color: #06004F;
     border-radius: 4px;

@@ -2,27 +2,39 @@
             <NavbarTransacao :nome-usuario="nomeUsuario" :valor-saldo="valorSaldo" :tipo-conta="tipoConta"
                 :cpf-cnpj="cpfCnpj" />
             <div class="container">
-                <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
+                <VueElementLoading :active="isLoading" :is-full-screen=true spinner="spinner" color="#06004F"
+                    text="Carregando" duration="1" size="60" />
+                <div>
+                    <MenuLateral :nome-usuario="nomeUsuario" :tipo-conta="tipoConta" :cpf-cnpj="cpfCnpj" />
+                </div>
+
                 <div class="conteudo-principal">
+
                     <div class="fixed-button">
                         <BotaoSair class="btn-sair" />
                     </div>
                     <div class="historico">
+
                         <h3>Historico de transação</h3>
                         <div class="historico-data">
+
                             <div class="historico-data-info">
                                 <p>Filtrar transação</p>
-                                <input class="custom-date-input" type="text" >
+                                <input class="custom-date-input" v-model="filtro" type="text">
                             </div>
-                            <!-- <div class="historico-data-info">
-                                <p>Data de fim</p>
-                                <input class="custom-date-input" type="date">
-                            </div> -->
                             <div class="btn-buscar-historico">
                                 <img src="../assets/img/historico/lupa.png" alt="" class="btn-lupa">
-                                <button class="btn-buscar">Buscar</button>
+                                <button @click="buscarTransacoes" class="btn-buscar">Buscar</button>
                             </div>
+                            <div v-if="filteredTransactions.length > 0" class="conteudo-historico">
+                                <div v-for="(transacao, id) in filteredTransactions" :key="id"
+                                    class="conteudo-historico-info">
 
+                                </div>
+                            </div>
+                            <div v-else>
+                                <p>Nenhuma transação encontrada.</p>
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -35,39 +47,45 @@
                                             <img :src="iconeTransacao(transacao.tipo)" alt="">
                                         </div>
                                         <div class="historico-group">
-                                            <h3>{{ tipoTransacao(transacao.tipo) }}</h3>
+                                            <h3>{{ transacao.tipo }}</h3>
                                             <p>R$ {{ transacao.valor.toFixed(2) }}</p>
-                                            <p>{{ transacao.contaDestino.usuario.nomeCompleto }}</p>
+                                            <p>{{ transacao.contaDestino?.usuario?.nomeCompleto || 'N/A' }}</p>
                                         </div>
-    
+
                                         <div class="historico-group">
                                             <h3>CPF/CNPJ</h3>
-                                            <p>{{ transacao.contaDestino.usuario.cpfCnpj }}</p>
+                                            <p>{{ transacao.contaDestino?.usuario?.cpfCnpj || 'N/A' }}</p>
                                         </div>
                                         <div class="historico-group">
                                             <h3>Agência</h3>
-                                            <p>{{ transacao.contaDestino.agencia }}</p>
+                                            <p>{{ transacao.contaDestino?.agencia || 'N/A' }}</p>
                                         </div>
                                         <div class="historico-group">
                                             <h3>Número da conta</h3>
-                                            <p>{{ transacao.contaDestino.conta }}</p>
+                                            <p>{{ transacao.contaDestino?.conta || 'N/A' }}</p>
                                         </div>
                                         <div class="historico-group">
                                             <h3>Horário</h3>
                                             <p>{{ formatarHorario(transacao.data) }}</p>
                                         </div>
                                         <div class="historico-group">
-                                            <img class="historico-boleto-img" src="../assets/img/historico/comprovante.png"
-                                                alt="boleto">
+                                            <img @click="baixarComprovante" class="historico-boleto-img"
+                                                src="../assets/img/historico/comprovante.png" alt="boleto">
                                         </div>
                                     </div>
-    
+
                                 </div>
-    
+
                             </div>
                             <div v-else>
                                 <p>Nenhum dado encontrado.</p>
                             </div>
+                        </div>
+                    </div>
+                    <div v-if="showModal" class="modal">
+                        <div class="modal-content">
+                            <p>Download realizado com sucesso!</p>
+                            <button class="close" @click="fecharModal">Fechar</button>
                         </div>
                     </div>
 
@@ -81,12 +99,19 @@ import NavbarTransacao from '@/components/NavbarTransacao.vue';
 import MenuLateral from '@/components/MenuLateral.vue';
 import BotaoSair from '@/components/BotaoSair.vue';
 import Comprovante from '@/components/Comprovante.vue';
+import VueElementLoading from 'vue-element-loading';
+
 export default {
     components: {
-        NavbarTransacao, MenuLateral, BotaoSair, Comprovante,
+        NavbarTransacao, MenuLateral, BotaoSair, Comprovante, VueElementLoading,
     },
     data() {
         return {
+
+            showModal: false,
+
+            isLoading: true,
+
             buscarPorId: '',
             nomeUsuario: '',
             valorSaldo: 0,
@@ -98,6 +123,7 @@ export default {
                 id: '',
                 saldo: '',
             },
+
             transacoes: [{
                 id: '',
                 valor: 0,
@@ -133,10 +159,13 @@ export default {
             dataInicio: '',
             dataFim: '',
 
+            filtro: '',
+            transacoesOriginais: [],
+
         }
     },
-    methods: {
 
+    methods: {
         async getTransacoesCompletaPorId() {
             try {
                 const idUsuario = sessionStorage.getItem('idUsuario');
@@ -148,73 +177,56 @@ export default {
                     data: transacao.data || "",
                     tipo: transacao.tipo || "",
                     contaOrigem: {
-                        id: transacao.contaOrigem.id || '',
-                        conta: transacao.contaOrigem.conta || "",
-                        agencia: transacao.contaOrigem.agencia || "",
-                        saldo: transacao.contaOrigem.saldo || 0,
+                        id: transacao.contaOrigem?.id || '',
+                        conta: transacao.contaOrigem?.conta || "",
+                        agencia: transacao.contaOrigem?.agencia || "",
+                        saldo: transacao.contaOrigem?.saldo || 0,
                         usuario: {
-                            id: transacao.contaOrigem.usuario.id || '',
-                            nomeCompleto: transacao.contaOrigem.usuario.nomeCompleto || "",
-                            cpfCnpj: transacao.contaOrigem.usuario.cpfCnpj || "",
-                            email: transacao.contaOrigem.usuario.email || "",
-                            tipo: transacao.contaOrigem.usuario.tipo || ""
+                            id: transacao.contaOrigem?.usuario?.id || '',
+                            nomeCompleto: transacao.contaOrigem?.usuario?.nomeCompleto || "",
+                            cpfCnpj: transacao.contaOrigem?.usuario?.cpfCnpj || "",
+                            email: transacao.contaOrigem?.usuario?.email || "",
+                            tipo: transacao.contaOrigem?.usuario?.tipo || ""
                         }
                     },
                     contaDestino: {
-                        id: transacao.contaDestino.id || '',
-                        conta: transacao.contaDestino.conta || "",
-                        agencia: transacao.contaDestino.agencia || "",
-                        saldo: transacao.contaDestino.saldo || 0,
+                        id: transacao.contaDestino?.id || '',
+                        conta: transacao.contaDestino?.conta || "",
+                        agencia: transacao.contaDestino?.agencia || "",
+                        saldo: transacao.contaDestino?.saldo || 0,
                         usuario: {
-                            id: transacao.contaDestino.usuario.id || '',
-                            nomeCompleto: transacao.contaDestino.usuario.nomeCompleto || "",
-                            cpfCnpj: transacao.contaDestino.usuario.cpfCnpj || "",
-                            email: transacao.contaDestino.usuario.email || "",
-                            tipo: transacao.contaDestino.usuario.tipo || ""
+                            id: transacao.contaDestino?.usuario?.id || '',
+                            nomeCompleto: transacao.contaDestino?.usuario?.nomeCompleto || "",
+                            cpfCnpj: transacao.contaDestino?.usuario?.cpfCnpj || "",
+                            email: transacao.contaDestino?.usuario?.email || "",
+                            tipo: transacao.contaDestino?.usuario?.tipo || ""
                         }
                     }
                 }));
+                this.transacoesOriginais = [...this.transacoes];
                 return response
             } catch (error) {
                 console.error('Erro ao obter transações completas:', error);
             }
         },
-        // async getTransacoesPorId() {
-        //     try {
-        //         const idUsuario = sessionStorage.getItem('idUsuario');
-        //         const response = await transacoesService.obterTransacaoPorId(idUsuario);
-        //         console.log("Dados da transação recebidos:", response);
-
-        //         // Verificar se a resposta é um array ou um objeto único
-        //         if (response && Array.isArray(response)) {
-
-        //             this.transactions = response;
-        //         } else if (response) {
-        //             console.log("A resposta é um objeto:", response);
-        //             this.transactions = [response]; // Colocar o objeto único dentro de um array
-        //         } else {
-        //             console.error('Dados da transação não encontrados ou são inválidos');
-        //         }
-
-
-        //         return response
-        //     } catch (error) {
-        //         console.error(error);
-        //     }
-        // },
 
         formatarData(data) {
+            if (!data) return 'N/A';
             const dataObj = new Date(data);
             const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
             return dataObj.toLocaleDateString('pt-BR', options);
         },
+
         formatarHorario(data) {
+            if (!data) return 'N/A';
             const dataObj = new Date(data);
             return `${dataObj.getHours()}h${dataObj.getMinutes()}`;
         },
+
         tipoTransacao(tipo) {
             return tipo === 'TRANSFERENCIA' ? 'Transferência' : 'Deposito';
         },
+
         iconeTransacao(tipo) {
             switch (tipo) {
                 case 'TRANSFERENCIA':
@@ -227,16 +239,63 @@ export default {
             }
         },
 
+        buscarTransacoes() {
+            this.transacoes = this.transacoes.filter(transacao =>
+                transacao.tipo.toLowerCase().includes(this.filtro.toLowerCase()) ||
+                transacao.valor.toString().includes(this.filtro.toLowerCase()) ||
+                transacao.contaDestino?.usuario?.nomeCompleto.toLowerCase().includes(this.filtro.toLowerCase()) ||
+                transacao.contaDestino?.usuario?.cpfCnpj.toLowerCase().includes(this.filtro.toLowerCase()) ||
+                transacao.contaDestino?.agencia.toString().includes(this.filtro.toLowerCase()) ||
+                transacao.contaDestino?.conta.toString().includes(this.filtro.toLowerCase()) ||
+                this.formatarData(transacao.data).toLowerCase().includes(this.filtro.toLowerCase()) ||
+                this.formatarHorario(transacao.data).toLowerCase().includes(this.filtro.toLowerCase())
+            );
+            setTimeout(() => {
+                this.filtro = '';
+                this.transacoes = [...this.transacoesOriginais];
+            }, 10000);
+        },
+
+        baixarComprovante() {
+            this.showModal = true;
+        },
+        fecharModal() {
+            this.showModal = false;
+        },
+
     },
     created() {
 
         this.getTransacoesCompletaPorId();
-        // this.getTransacoesPorId();
         this.nomeUsuario = sessionStorage.getItem('nomeUsuario') || '';
         this.valorSaldo = Number(sessionStorage.getItem('valorSaldo')) || 0;
         this.tipoConta = sessionStorage.getItem('tipoConta') || '';
         this.cpfCnpj = sessionStorage.getItem('cpfCnpj') || '';
+    },
+    mounted() {
+        setTimeout(() => {
+            this.isLoading = false;
+        }, 1200);
+    },
+    computed: {
+        filteredTransactions() {
+            // Função para filtrar as transações com base no valor do filtro
+            return this.transacoes.filter(transacao => {
+                const filtroLowerCase = this.filtro.toLowerCase();
+
+                // Aplicar filtros em vários campos da transação
+                return transacao.tipo.toLowerCase().includes(filtroLowerCase) ||
+                    transacao.valor.toString().includes(filtroLowerCase) ||
+                    transacao.contaDestino?.usuario?.nomeCompleto.toLowerCase().includes(filtroLowerCase) ||
+                    transacao.contaDestino?.usuario?.cpfCnpj.toLowerCase().includes(filtroLowerCase) ||
+                    transacao.contaDestino?.agencia.toString().includes(filtroLowerCase) ||
+                    transacao.contaDestino?.conta.toString().includes(filtroLowerCase) ||
+                    this.formatarData(transacao.data).toLowerCase().includes(filtroLowerCase) ||
+                    this.formatarHorario(transacao.data).toLowerCase().includes(filtroLowerCase);
+            });
+        }
     }
+
 }
 </script>
 
@@ -257,7 +316,6 @@ export default {
     margin-left: 80px;
     width: 67%;
     height: 400px;
-
 }
 
 .fixed-button {
@@ -265,33 +323,28 @@ export default {
     top: 115px;
     right: 10px;
     z-index: 1000;
-    /* Garante que o botão esteja acima de outros conteúdos */
 }
 
 .btn-sair {
     display: flex;
     justify-content: flex-end;
-
 }
 
 .historico {
     display: flex;
     flex-direction: column;
-
     margin-bottom: 10px;
 }
 
-.historico h3{
-    margin:0;
+.historico h3 {
+    margin: 0;
     padding: 0;
-
 }
 
 .historico-data {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-
 }
 
 .historico-data-info {
@@ -305,24 +358,22 @@ export default {
 .conteudo-historico {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+
 }
 
 .conteudo-historico-info {
+    width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-
-
-
+    justify-content: space-between;
+    align-items:flex-start;
+    flex-wrap: nowrap;
+    border-bottom: 1.5px solid #E6E6ED;
 }
 
 .historico-group {
-    margin: 0;
-    padding: 0;
-
-    margin-right: 40px;
-    display: inline-block;
+    flex: 1;
+    margin: 10px;
+    text-align: start;
 
 
 }
@@ -340,11 +391,7 @@ export default {
     white-space: nowrap;
     margin: 0;
     padding: auto;
-
-
 }
-
-
 
 .btn-buscar-historico {
     display: flex;
@@ -360,12 +407,19 @@ export default {
     cursor: pointer;
     margin-top: 40px;
 }
+.btn-buscar-historico:hover{
+    background-color: #080065;
+}
 
 .btn-buscar {
     color: #DCDCDC;
-    background-color: #06004F;
+    background-color: transparent;
     cursor: pointer;
     border: none;
+}
+
+.btn-buscar:hover{
+    background-color: #080065;
 }
 
 .btn-lupa {
@@ -393,8 +447,48 @@ export default {
     border: none;
     padding: 10px;
     background-color: #fcfcfc;
+    scrollbar-width: thin;
+}
 
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 
+.modal-content {
+    background-color: #06004F;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content p {
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.close {
+    width: 140px;
+    height: 44px;
+    margin-top: 10px;
+    border: 1.2px solid #06004F;
+    color: #06004F;
+    border-radius: 4px;
+    background-color: #fff;
+    font-weight: bold;
+    cursor: pointer;
 }
 </style>
 

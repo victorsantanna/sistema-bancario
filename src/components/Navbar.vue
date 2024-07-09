@@ -26,10 +26,9 @@ export default {
 
 <style scoped>
 
-
 .container {
     font-family: 'Montserrat', sans-serif;
-    
+    width: 1248px;
     height: 80px;
     background-color: #06004F;
     display: flex;
@@ -50,7 +49,7 @@ export default {
 
 .conteudo-entrar {
     margin-top: 5px;
-    margin-right: 50px;
+    margin-right: 15px;
     width: 198px;
     height: 40px;
     border: 1px solid #fff;
@@ -90,43 +89,48 @@ export default {
 }
 
 /* media queries */
-
-@media (max-width: 1560px){
-    .container {
-        flex-direction: row;
-        height: auto;
-        padding: 20px;
-        width: 100%;
+@media (max-width: 600px) {
+    .container{
+        width: 420px;
+        gap: 120px;
+        
     }
-
-    .conteudo-logo {
-        margin-left: 30px;
-
+    .conteudo-logo .logo {
+        width: 65px;
+        height: 30px;
+        margin-top: 5px;
+        margin-left: 5px;
     }
 
     .conteudo-entrar {
-        width: 100%;
+        width: 150px;
+        height: 40px;
+        margin-top: 10px;
+        border: 1px solid #fff;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: row;
         justify-content: center;
+        align-items: center;
     }
 
     .botao-entrar {
-        font-size: 14px;
+        font-size: 12px;
     }
 
     .imagem-frame {
-        width: 21px;
-        height: 21px;
+        width: 20px;
+        height: 20px;
     }
-
 }
 
-@media (max-width: 820px) {
+@media (min-width: 601px) and (max-width: 768px) {
 
     .container {
         flex-direction: row;
         height: auto;
         padding: 20px;
-        width: 100%;
+        width: 716px;
     }
 
     .conteudo-logo {
@@ -149,66 +153,5 @@ export default {
     }
 }
 
-@media (max-width: 480px) {
 
-    .conteudo-logo .logo {
-        width: 90px;
-        height: 35px;
-        margin-top: 5px;
-        margin-left: 10px;
-    }
-
-    .conteudo-entrar {
-        width: 100%;
-        height: 50px;
-        margin-top: 10px;
-        border: 1px solid #fff;
-        border-radius: 4px;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .botao-entrar {
-        font-size: 12px;
-    }
-
-    .imagem-frame {
-        width: 20px;
-        height: 20px;
-    }
-
-
-}
-
-@media (max-width: 394px) {
-    .conteudo-logo .logo {
-        width: 65px;
-        height: 30px;
-        margin-top: 5px;
-        margin-left: 10px;
-    }
-
-    .conteudo-entrar {
-        width: 85%;
-        height: 45px;
-        margin-top: 10px;
-        border: 1px solid #fff;
-        border-radius: 4px;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .botao-entrar {
-        font-size: 12px;
-    }
-
-    .imagem-frame {
-        width: 20px;
-        height: 20px;
-    }
-}
 </style>

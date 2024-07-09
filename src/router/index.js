@@ -8,12 +8,6 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/about',
-    name: 'about',
-
-    component: () => import('../views/AboutView.vue')
-  },
-  {
     path: '/login',
     name: 'login',
 
@@ -30,12 +24,6 @@ const routes = [
     name: 'detalhes',
 
     component: () => import('../views/DetalhesView.vue')
-  },
-  {
-    path: '/teste',
-    name: 'teste',
-
-    component: () => import('../views/teste.vue')
   },
   {
     path: '/transacao',
